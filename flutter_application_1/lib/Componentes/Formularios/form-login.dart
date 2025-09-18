@@ -81,6 +81,8 @@ class _LoginFormState extends State<LoginForm> {
         await Future<void>.delayed(const Duration(milliseconds: 600));
       }
       if (!mounted) return;
+      // Feedback simples de sucesso (se a navegação ocorrer no onSubmit com pushReplacement,
+      // este trecho não será executado porque o widget será desmontado).
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login realizado com sucesso')),
       );
@@ -110,11 +112,11 @@ class _LoginFormState extends State<LoginForm> {
             TextFormField(
               controller: _emailCtrl,
               focusNode: _emailFocus,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'E-mail',
                 hintText: 'seu@email.com',
-                prefixIcon: const Icon(Icons.email_outlined),
-                border: const OutlineInputBorder(),
+                prefixIcon: Icon(Icons.email_outlined),
+                border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,

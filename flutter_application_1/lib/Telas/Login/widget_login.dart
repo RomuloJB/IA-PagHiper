@@ -1,30 +1,61 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Componentes/BotaoGenerico/widget_botao.dart';
+import 'package:flutter_application_1/Componentes/Formularios/form-login.dart';
 import 'package:flutter_application_1/Routes/rotas.dart';
 
 class WidgetLogin extends StatelessWidget {
-  const WidgetLogin({key}) : super(key: key);
+  const WidgetLogin({super.key});
+
+  Future<void> _onSubmit(
+    BuildContext context,
+    String email,
+    String password,
+    bool rememberMe,
+  ) async {
+    // TODO: criar nossa propria lógica de autenticação
+    if (email.isEmpty || password.isEmpty) {
+      throw Exception('Preencha e-mail e senha.');
+    }
+
+    // Exemplo: autenticação "ok" -> navega para a Home
+    if (context.mounted) {
+      Navigator.of(context).pushReplacementNamed(Rotas.home);
+    }
+  }
+
+  void _onForgotPassword(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Recuperar senha'),
+        content: const Text(
+          'Enviamos um link de recuperação para o seu e-mail (exemplo).',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Entrar no sistema")),
-      body: Form(
-        child: Column(
-          children: [
-            TextFormField(
-              decoration: InputDecoration(
-                labelText: "Usuário",
-                hintText: "Digite o nome do usuário",
-              ),
+      appBar: AppBar(title: const Text('Entrar no sistema')),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 420),
+            child: LoginForm(
+              onSubmit: (email, password, rememberMe) =>
+                  _onSubmit(context, email, password, rememberMe),
+              onForgotPassword: () => _onForgotPassword(context),
+              padding: const EdgeInsets.symmetric(horizontal: 4),
             ),
-            TextFormField(
-              decoration: InputDecoration(
-                labelText: "Senha",
-                hintText: "Digite sua senha",
-              ),
-            ),
-            WidgetBotao(rota: Rotas.home, rotulo: "Entrar"),
-          ],
+          ),
         ),
       ),
     );
