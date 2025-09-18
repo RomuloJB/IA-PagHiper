@@ -19,144 +19,151 @@ class DatabaseService {
 
   Future<Database> _initDatabase() async {
     if (kIsWeb) {
-      // Configuração para web usando sqflite_ffi
       final dbFactory = databaseFactoryFfiWeb;
-      print('Inicializando banco de dados na web');
+      print('Inicializando banco de dados na web (em memória)');
       return await dbFactory.openDatabase(
-        inMemoryDatabasePath, // Banco em memória para web
+        inMemoryDatabasePath,
         options: OpenDatabaseOptions(
           version: 1,
           onCreate: _onCreate,
-          onUpgrade: (db, oldVersion, newVersion) async {
-            if (oldVersion < 2) {}
-          },
+          onConfigure: _onConfigure,
         ),
       );
     } else {
-      // Configuração para plataformas não-web usando sqflite
       final databasePath = await getDatabasesPath();
-      final path = join(databasePath, 'barber_shop.db');
+      final path = join(databasePath, 'apollo.db'); // Nome do DB atualizado
       print('Inicializando banco de dados local: $path');
       return await databaseFactory.openDatabase(
         path,
         options: OpenDatabaseOptions(
           version: 1,
           onCreate: _onCreate,
-          onUpgrade: (db, oldVersion, newVersion) async {
-            if (oldVersion < 2) {}
-          },
+          onConfigure: _onConfigure,
         ),
       );
     }
   }
 
+  Future<void> _onConfigure(Database db) async {
+    // Habilita o suporte a chaves estrangeiras, essencial para a integridade dos dados
+    await db.execute('PRAGMA foreign_keys = ON');
+  }
+
   Future<void> _onCreate(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS clientes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        sobrenome TEXT,
-        celular TEXT
-      )
-    ''');
+    print('Criando tabelas para a versão $version do banco de dados...');
 
+    // Tabela de Usuários
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS servicos (
-        id_servico INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        preco REAL
-      )
-    ''');
-
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS usuarios (
+      CREATE TABLE users (
         id TEXT PRIMARY KEY,
-        nome TEXT,
-        senha TEXT
+        name TEXT,
+        email TEXT,
+        created_at TEXT
       )
     ''');
 
+    // Tabelas de "tipos" (lookup tables)
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS agendamentos (
+      CREATE TABLE contract_types (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        cliente_id INTEGER,
-        dia_agendamento INTEGER,
-        hora_agendada TEXT,
-        servico_id INTEGER,
-        status TEXT DEFAULT 'Pendente',
-        FOREIGN KEY (cliente_id) REFERENCES clientes(id),
-        FOREIGN KEY (servico_id) REFERENCES servicos(id)
+        name TEXT UNIQUE NOT NULL
       )
     ''');
 
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS configuracao (
-        id_configuracao INTEGER PRIMARY KEY AUTOINCREMENT,
-        enviarMensagemWhats INTEGER NOT NULL DEFAULT 1,
-        tempoEnviarMensagem INTEGER NOT NULL,
-        salvarObservacao INTEGER NOT NULL DEFAULT 1
-      )
-    ''');
-
-    await db.execute(
-      '''
-        INSERT INTO configuracao (enviarMensagemWhats, tempoEnviarMensagem, salvarObservacao)
-        VALUES (?, ?, ?)
-      ''',
-      [1, 5, 1],
-    );
-
-    await db.execute('''
-      CREATE TABLE IF NOT EXISTS cliente_observacao (
-        id_observacao INTEGER PRIMARY KEY AUTOINCREMENT,
-        cliente_id INTEGER,
-        dtCadastro INTEGER,
-        agendamento_id INTEGER,
-        FOREIGN KEY (cliente_id) REFERENCES clientes(id),
-        FOREIGN KEY (agendamento_id) REFERENCES agendamentos(id)
+      CREATE TABLE corporate_regimes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL
       )
     ''');
 
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS grupo_produto (
-        id_grupo_produto INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT
+      CREATE TABLE society_types (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT UNIQUE NOT NULL
       )
     ''');
 
+    // Tabela principal de Contratos
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS produtos (
-        id_produto INTEGER PRIMARY KEY AUTOINCREMENT,
-        nome TEXT,
-        valor_unitario REAL,
-        percentual_lucro REAL,
-        valor_venda REAL,
-        id_grupo_produto INTEGER,
-        FOREIGN KEY (id_grupo_produto) REFERENCES grupo_produto(id_grupo_produto)
+      CREATE TABLE contracts (
+        id TEXT PRIMARY KEY,
+        user_id TEXT,
+        filename TEXT NOT NULL,
+        hash TEXT UNIQUE,
+        uploaded_at TEXT NOT NULL,
+        processed_at TEXT,
+        status TEXT NOT NULL,
+        company_name TEXT,
+        cnpj TEXT,
+        foundation_date TEXT,
+        capital_social REAL,
+        address TEXT,
+        contract_type_id INTEGER,
+        corporate_regime_id INTEGER,
+        society_type_id INTEGER,
+        confidence REAL,
+        raw_json TEXT,
+        notes TEXT,
+        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL,
+        FOREIGN KEY(contract_type_id) REFERENCES contract_types(id),
+        FOREIGN KEY(corporate_regime_id) REFERENCES corporate_regimes(id),
+        FOREIGN KEY(society_type_id) REFERENCES society_types(id)
       )
     ''');
 
+    // Tabela de Sócios
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS venda (
-        id_venda INTEGER PRIMARY KEY AUTOINCREMENT,
-        cliente_id INTEGER,
-        data_venda INTEGER,
-        descricao TEXT,
-        valor_total REAL,
-        FOREIGN KEY (cliente_id) REFERENCES clientes(id)
+      CREATE TABLE partners (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        contract_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        cpf_cnpj TEXT,
+        qualification TEXT,
+        role TEXT,
+        quota_percent REAL,
+        capital_subscribed REAL,
+        address TEXT,
+        FOREIGN KEY(contract_id) REFERENCES contracts(id) ON DELETE CASCADE
       )
     ''');
 
+    // Tabela de Alterações Contratuais
     await db.execute('''
-      CREATE TABLE IF NOT EXISTS venda_items (
-        id_venda_item INTEGER PRIMARY KEY AUTOINCREMENT,
-        id_venda INTEGER,
-        id_produto INTEGER,
-        quantidade INTEGER,
-        valor_total REAL,
-        FOREIGN KEY (id_venda) REFERENCES venda(id_venda),
-        FOREIGN KEY (id_produto) REFERENCES produtos(id_produto)
+      CREATE TABLE contract_changes (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        contract_id TEXT NOT NULL,
+        change_date TEXT NOT NULL,
+        change_type TEXT,
+        description TEXT NOT NULL,
+        FOREIGN KEY(contract_id) REFERENCES contracts(id) ON DELETE CASCADE
       )
     ''');
+
+    // Tabela de Detalhes do Capital
+    await db.execute('''
+      CREATE TABLE capital_details (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        contract_id TEXT NOT NULL,
+        type TEXT NOT NULL,
+        description TEXT,
+        value REAL NOT NULL,
+        FOREIGN KEY(contract_id) REFERENCES contracts(id) ON DELETE CASCADE
+      )
+    ''');
+
+    // Tabela de Logs de Processamento
+    await db.execute('''
+      CREATE TABLE processing_logs (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        contract_id TEXT NOT NULL,
+        step TEXT NOT NULL,
+        message TEXT,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(contract_id) REFERENCES contracts(id) ON DELETE CASCADE
+      )
+    ''');
+
+    print('Tabelas criadas com sucesso!');
   }
 }

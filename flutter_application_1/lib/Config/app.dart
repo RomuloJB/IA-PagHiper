@@ -35,7 +35,7 @@ class App extends StatelessWidget {
       routes: {
         // Rotas.home: (context) => const WidgetLogin(),
         Rotas.home: (context) => const WidgetMenu(),
-        Rotas.cadastro_cliente: (context) => WidgetCliente(),
+        Rotas.Upload: (context) => WidgetCliente(),
       },
     );
   }
