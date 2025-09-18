@@ -45,36 +45,7 @@ class WidgetDrawer extends StatelessWidget {
             leading: const Icon(Icons.person_add_alt_1),
             title: const Text('Cadastro de cliente'),
             onTap: () {
-              Navigator.of(context).pushNamed(Rotas.listagem_cliente);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.plus_one),
-            title: const Text('Cadastro de serviço'),
-            onTap: () {
-              Navigator.of(context).pushNamed(Rotas.listagem_servico);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text('Configurações'),
-            onTap: () {
-              Navigator.of(context).pushNamed(Rotas.configuracao);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.category),
-            title: const Text('Grupo de Produto'),
-            onTap: () {
-              Navigator.of(context).pushNamed(Rotas.listagem_grupo_produto);
-            },
-          ),
-
-          ListTile(
-            leading: const Icon(Icons.production_quantity_limits),
-            title: const Text('Produtos'),
-            onTap: () {
-              Navigator.of(context).pushNamed(Rotas.listagem_produto);
+              Navigator.of(context).pushNamed(Rotas.Upload);
             },
           ),
           ListTile(
