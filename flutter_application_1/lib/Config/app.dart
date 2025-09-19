@@ -10,7 +10,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Rodrigue\'s Barber Shop',
+      title: 'IA PagHiper',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         appBarTheme: const AppBarTheme(
@@ -24,16 +24,14 @@ class App extends StatelessWidget {
         scaffoldBackgroundColor: const Color.fromARGB(255, 216, 216, 216),
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: Rotas.home,
+      initialRoute: Rotas.login, // <- agora inicia no login
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('pt', 'BR')],
-
       routes: {
-        // Rotas.home: (context) => const WidgetLogin(),
         Rotas.login: (context) => const WidgetLogin(),
         Rotas.home: (context) => const WidgetMenu(),
       },

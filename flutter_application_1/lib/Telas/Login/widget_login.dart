@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Componentes/Formularios/form-login.dart';
+import 'package:flutter_application_1/Componentes/Formularios/form_login.dart';
 import 'package:flutter_application_1/Routes/rotas.dart';
 
 class WidgetLogin extends StatelessWidget {
@@ -11,12 +11,12 @@ class WidgetLogin extends StatelessWidget {
     String password,
     bool rememberMe,
   ) async {
-    // TODO: criar nossa propria lógica de autenticação
+    // TODO: substitua pela sua lógica real de autenticação
     if (email.isEmpty || password.isEmpty) {
       throw Exception('Preencha e-mail e senha.');
     }
 
-    // Exemplo: autenticação "ok" -> navega para a Home
+    // Exemplo: autenticação "ok" → navega para a Home
     if (context.mounted) {
       Navigator.of(context).pushReplacementNamed(Rotas.home);
     }
