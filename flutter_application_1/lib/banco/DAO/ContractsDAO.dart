@@ -1,5 +1,6 @@
 import 'package:flutter_application_1/Services/databaseService.dart';
 import 'package:flutter_application_1/banco/entidades/Contract.dart';
+import 'package:sqflite/sqflite.dart';
 
 class ContractDao {
   final DatabaseService _dbService = DatabaseService.instance;
@@ -7,7 +8,11 @@ class ContractDao {
 
   Future<int> create(Contract contract) async {
     final db = await _dbService.database;
-    return await db.insert(tableName, contract.toMap());
+    return await db.insert(
+      tableName,
+      contract.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<Contract?> read(String id) async {

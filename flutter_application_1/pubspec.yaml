@@ -31,9 +31,18 @@ dependencies:
   flutter:
     sdk: flutter
   path: 
+   # Para pegar arquivos do dispositivo
+  file_picker: ^8.0.0
+  
+  # Para fazer requisições HTTP (mesmo que mock)
+  http: ^1.2.1
+  
+  # Para gerar IDs únicos para os contratos
+  uuid: ^4.3.3
   sqflite: 
   sqflite_common_ffi:
   sqflite_common_ffi_web:
+  pdfx: ^2.6.0
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: 

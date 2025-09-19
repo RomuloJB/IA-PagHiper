@@ -43,7 +43,7 @@ class WidgetLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Entrar no sistema')),
+      appBar: AppBar(title: const Text('IA PagHiper')),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
