@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Routes/rotas.dart';
 import 'package:flutter_application_1/Telas/Login/widget_login.dart';
 import 'package:flutter_application_1/Telas/Menu/widget_menu.dart';
+import 'package:flutter_application_1/Telas/NewContract/NewContract.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 class App extends StatelessWidget {
@@ -31,11 +32,11 @@ class App extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('pt', 'BR')],
-
+      home: NewContractScreen(),
       routes: {
         // Rotas.home: (context) => const WidgetLogin(),
         Rotas.login: (context) => const WidgetLogin(),
-        Rotas.home: (context) => const WidgetMenu(),
+        Rotas.Upload: (context) => const NewContractScreen(),
       },
     );
   }

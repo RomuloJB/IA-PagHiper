@@ -1,5 +1,6 @@
 import 'package:flutter_application_1/Services/databaseService.dart';
 import 'package:flutter_application_1/banco/entidades/ProcessingLog.dart';
+import 'package:sqflite/sqflite.dart';
 
 class ProcessingLogDao {
   final DatabaseService _dbService = DatabaseService.instance;
@@ -7,7 +8,11 @@ class ProcessingLogDao {
 
   Future<int> create(ProcessingLog log) async {
     final db = await _dbService.database;
-    return await db.insert(tableName, log.toMap());
+    return await db.insert(
+      tableName,
+      log.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   // Método específico para buscar logs de um contrato

@@ -18,32 +18,19 @@ class ContractService {
   final ProcessingLogDao _logDao = ProcessingLogDao();
   final Uuid _uuid = const Uuid();
 
-  // 1. Validação do arquivo
   String? validateFile(PlatformFile file) {
     const maxSizeInBytes = 10 * 1024 * 1024; // 10 MB
-
     if (file.extension?.toLowerCase() != 'pdf') {
       return 'Erro: O arquivo precisa ser um .pdf';
     }
-
     if (file.size > maxSizeInBytes) {
       return 'Erro: O arquivo é muito grande (máx. 10 MB)';
     }
-
-    return null; // Sem erros
+    return null;
   }
 
-  // 2. Simulação da chamada à API
   Future<Map<String, dynamic>> _mockAnalyzeApi(PlatformFile file) async {
-    // Simula um atraso de rede
     await Future.delayed(const Duration(seconds: 3));
-
-    // Simula uma falha aleatória na API (20% de chance de falhar)
-    if (Random().nextDouble() < 0.2) {
-      throw Exception("Falha de conexão com a API de análise.");
-    }
-
-    // Retorna um JSON mockado com dados extraídos do contrato
     return {
       "company_name": "Empresa Fictícia LTDA",
       "cnpj": "12.345.678/0001-99",
@@ -68,8 +55,8 @@ class ContractService {
     };
   }
 
-  // 3. Processo principal: orquestra tudo
-  Future<void> uploadAndProcessContract({
+  // MUDANÇA: Agora retorna o Map<String, dynamic> da API
+  Future<Map<String, dynamic>> uploadAndProcessContract({
     required PlatformFile file,
     String? customName,
     String? notes,
@@ -78,15 +65,6 @@ class ContractService {
     final now = DateTime.now().toIso8601String();
 
     try {
-      // Passo 1: Salva o contrato com status 'pending'
-      await _logDao.create(
-        ProcessingLog(
-          contractId: contractId,
-          step: 'upload_started',
-          createdAt: now,
-        ),
-      );
-
       final initialContract = Contract(
         id: contractId,
         filename: customName ?? file.name,
@@ -96,7 +74,13 @@ class ContractService {
       );
       await _contractDao.create(initialContract);
 
-      // Passo 2: Envia para a API (mock)
+      await _logDao.create(
+        ProcessingLog(
+          contractId: contractId,
+          step: 'upload_started',
+          createdAt: now,
+        ),
+      );
       await _logDao.create(
         ProcessingLog(
           contractId: contractId,
@@ -104,7 +88,9 @@ class ContractService {
           createdAt: now,
         ),
       );
+
       final apiResponse = await _mockAnalyzeApi(file);
+
       await _logDao.create(
         ProcessingLog(
           contractId: contractId,
@@ -114,7 +100,6 @@ class ContractService {
         ),
       );
 
-      // Passo 3: Atualiza o contrato com os dados da API
       final processedContract = Contract(
         id: contractId,
         filename: customName ?? file.name,
@@ -127,13 +112,11 @@ class ContractService {
         foundationDate: apiResponse['foundation_date'],
         capitalSocial: (apiResponse['capital_social'] as num).toDouble(),
         address: apiResponse['address'],
-
         confidence: (apiResponse['confidence'] as num).toDouble(),
         rawJson: jsonEncode(apiResponse),
       );
       await _contractDao.update(processedContract);
 
-      // Passo 4: Salva os sócios retornados pela API
       final partners = (apiResponse['partners'] as List)
           .map(
             (p) => Partner(
@@ -156,8 +139,10 @@ class ContractService {
           createdAt: now,
         ),
       );
+
+      // MUDANÇA: Retorna a resposta da API para a UI
+      return apiResponse;
     } catch (e) {
-      // Em caso de erro, atualiza o status para 'failed'
       final failedContract = await _contractDao.read(contractId);
       if (failedContract != null) {
         await _contractDao.update(
@@ -178,7 +163,6 @@ class ContractService {
           createdAt: now,
         ),
       );
-      // Re-lança o erro para ser pego pela UI
       throw Exception("Falha ao processar o contrato: ${e.toString()}");
     }
   }
