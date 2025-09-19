@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Routes/rotas.dart';
-import 'package:flutter_application_1/Telas/Cliente/Cadastro_cliente.dart';
+import 'package:flutter_application_1/Telas/Login/widget_login.dart';
 import 'package:flutter_application_1/Telas/Menu/widget_menu.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -34,8 +34,8 @@ class App extends StatelessWidget {
 
       routes: {
         // Rotas.home: (context) => const WidgetLogin(),
+        Rotas.login: (context) => const WidgetLogin(),
         Rotas.home: (context) => const WidgetMenu(),
-        Rotas.Upload: (context) => WidgetCliente(),
       },
     );
   }
