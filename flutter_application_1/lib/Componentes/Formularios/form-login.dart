@@ -51,7 +51,6 @@ class _LoginFormState extends State<LoginForm> {
   String? _validateEmail(String? v) {
     final value = v?.trim() ?? '';
     if (value.isEmpty) return 'Informe seu e-mail';
-    // Regex simples para e-mail
     final emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
     if (!emailRegex.hasMatch(value)) return 'E-mail inválido';
     return null;
@@ -77,12 +76,9 @@ class _LoginFormState extends State<LoginForm> {
       if (widget.onSubmit != null) {
         await widget.onSubmit!(email, password, _rememberMe);
       } else {
-        // Comportamento padrão (apenas exemplo)
         await Future<void>.delayed(const Duration(milliseconds: 600));
       }
       if (!mounted) return;
-      // Feedback simples de sucesso (se a navegação ocorrer no onSubmit com pushReplacement,
-      // este trecho não será executado porque o widget será desmontado).
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login realizado com sucesso')),
       );

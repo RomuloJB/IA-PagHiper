@@ -31,7 +31,7 @@ class _WidgetMenuState extends State<WidgetMenu> {
           fontWeight: FontWeight.bold,
         ),
         centerTitle: true,
-        title: const Text("Rodrigue's Barber Shop"),
+        title: const Text("IA PagHiper"),
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu, color: Colors.white),
