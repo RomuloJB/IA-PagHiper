@@ -108,6 +108,16 @@ class _LoginFormState extends State<LoginForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Text(
+              'Login',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                fontSize: 36,
+              ),
+            ),
+            const SizedBox(height: 50),
+
             // Campo de e-mail
             TextFormField(
               controller: _emailCtrl,
@@ -182,7 +192,7 @@ class _LoginFormState extends State<LoginForm> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 36),
             // Botão de login
             SizedBox(
               height: 48,
