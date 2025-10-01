@@ -1,0 +1,141 @@
+[
+    {
+        "id": "1",
+        "filename": "contrato_empresa_alpha.pdf",
+        "uploaded_at": "2025-09-20T10:15:00",
+        "processed_at": "2025-09-20T10:16:30",
+        "status": "processed",
+        "company_name": "Empresa Alpha LTDA",
+        "cnpj": "12.345.678/0001-90",
+        "foundation_date": "2015-03-10",
+        "capital_social": 500000.00,
+        "currency": "BRL",
+        "address": "Rua das Flores, 123",
+        "city": "São Paulo",
+        "state": "SP",
+        "cep": "01010-000",
+        "contract_type": "LTDA",
+        "corporate_regime": "Simples Nacional",
+        "society_type": "Sociedade Limitada",
+        "confidence": 0.98,
+        "model_version": "v1.0",
+        "notes": "Contrato revisado e validado.",
+        "partners": [
+            {
+                "name": "João da Silva",
+                "cpf_cnpj": "123.456.789-10",
+                "role": "Sócio administrador",
+                "quota_percent": 60.0,
+                "address": "São Paulo - SP"
+            },
+            {
+                "name": "Maria Oliveira",
+                "cpf_cnpj": "987.654.321-00",
+                "role": "Sócia",
+                "quota_percent": 40.0,
+                "address": "São Paulo - SP"
+            }
+        ]
+    },
+    {
+        "id": "2",
+        "filename": "contrato_empresa_beta.pdf",
+        "uploaded_at": "2025-09-18T09:00:00",
+        "processed_at": null,
+        "status": "pending",
+        "company_name": "Empresa Beta ME",
+        "cnpj": "98.765.432/0001-55",
+        "capital_social": 150000.00,
+        "currency": "BRL",
+        "contract_type": "MEI",
+        "corporate_regime": "Lucro Presumido",
+        "society_type": "Sociedade Simples",
+        "partners": [
+            {
+                "name": "Carlos Mendes",
+                "cpf_cnpj": "111.222.333-44",
+                "role": "Sócio administrador",
+                "quota_percent": 100.0
+            }
+        ]
+    },
+    {
+        "id": "3",
+        "filename": "contrato_empresa_gamma.pdf",
+        "uploaded_at": "2025-09-10T15:30:00",
+        "processed_at": "2025-09-10T15:32:00",
+        "status": "processed",
+        "company_name": "Empresa Gamma SA",
+        "cnpj": "11.111.111/0001-11",
+        "capital_social": 2000000.00,
+        "currency": "BRL",
+        "contract_type": "SA",
+        "corporate_regime": "Lucro Real",
+        "society_type": "Sociedade Anônima",
+        "partners": [
+            {
+                "name": "Investimentos XYZ Ltda",
+                "cpf_cnpj": "22.222.222/0001-22",
+                "role": "Acionista majoritário",
+                "quota_percent": 75.0
+            },
+            {
+                "name": "Fernanda Souza",
+                "cpf_cnpj": "333.444.555-66",
+                "role": "Acionista",
+                "quota_percent": 25.0
+            }
+        ]
+    },
+    {
+        "id": "4",
+        "filename": "contrato_empresa_delta.pdf",
+        "uploaded_at": "2025-09-05T08:45:00",
+        "processed_at": "2025-09-05T08:50:00",
+        "status": "failed",
+        "company_name": "Empresa Delta EIRELI",
+        "cnpj": "55.444.333/0001-77",
+        "capital_social": 100000.00,
+        "currency": "BRL",
+        "contract_type": "EIRELI",
+        "corporate_regime": "Simples Nacional",
+        "society_type": "Sociedade Limitada",
+        "notes": "Falha no OCR do PDF.",
+        "partners": [
+            {
+                "name": "Ana Pereira",
+                "cpf_cnpj": "777.888.999-00",
+                "role": "Única sócia",
+                "quota_percent": 100.0
+            }
+        ]
+    },
+    {
+        "id": "5",
+        "filename": "contrato_empresa_epsilon.pdf",
+        "uploaded_at": "2025-09-02T14:20:00",
+        "processed_at": "2025-09-02T14:22:15",
+        "status": "processed",
+        "company_name": "Empresa Epsilon LTDA",
+        "cnpj": "22.333.444/0001-88",
+        "capital_social": 750000.00,
+        "currency": "BRL",
+        "contract_type": "LTDA",
+        "corporate_regime": "Lucro Presumido",
+        "society_type": "Sociedade Limitada",
+        "partners": [
+            {
+                "name": "Rodrigo Lima",
+                "cpf_cnpj": "222.333.444-55",
+                "role": "Sócio administrador",
+                "quota_percent": 50.0
+            },
+            {
+                "name": "Clara Alves",
+                "cpf_cnpj": "111.999.888-77",
+                "role": "Sócia",
+                "quota_percent": 50.0
+            }
+        ]
+    }
+]
