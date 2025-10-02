@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Routes/rotas.dart';
 import 'package:flutter_application_1/Telas/Dashboard/widget_dashboard.dart';
+import 'package:flutter_application_1/Telas/Listagem/widget_listagem.dart';
 import 'package:flutter_application_1/Telas/Login/widget_login.dart';
 import 'package:flutter_application_1/Telas/Menu/widget_menu.dart';
 import 'package:flutter_application_1/Telas/NewContract/NewContract.dart';
@@ -38,6 +39,7 @@ class App extends StatelessWidget {
         Rotas.login: (context) => const WidgetLogin(),
         Rotas.Upload: (context) => const NewContractScreen(),
         Rotas.dashboard: (context) => const WidgetDashboard(),
+        Rotas.listagem: (context) => const WidgetListagem(),
       },
     );
   }

@@ -3,6 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:fl_chart/fl_chart.dart';
 
+const Color kBackgroundColor = Color(0xFFF5F7FA);
+const Color kPrimaryBlue = Color(0xFF1E88E5);
+const Color kPrimaryGreen = Color(0xFF4CAF50);
+const Color kTextColor = Color(0xFF212121);
+const Color kCardBorderColor = Color(0xFFE0E0E0);
+const List<Color> kChartColors = [
+  kPrimaryBlue,
+  kPrimaryGreen,
+  Color(0xFFFF9800),
+  Color(0xFFAB47BC),
+  Color(0xFFB0BEC5),
+];
+
 class DashboardContrato {
   final String id;
   final String companyName;
@@ -110,15 +123,23 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard de Contratos')),
+      backgroundColor: kBackgroundColor,
+      appBar: AppBar(
+        title: const Text('Dashboard de Contratos'),
+        backgroundColor: kPrimaryBlue,
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
       body: contratos.isEmpty
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: kPrimaryBlue))
           : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    // Cards de métricas globais - simples
                     Wrap(
                       spacing: 12,
                       runSpacing: 12,
@@ -126,18 +147,22 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                         _MetricCard(
                           label: "Total Contratos",
                           value: totalContratos.toString(),
+                          color: kPrimaryBlue,
                         ),
                         _MetricCard(
                           label: "Processados",
                           value: totalProcessados.toString(),
+                          color: kPrimaryGreen,
                         ),
                         _MetricCard(
                           label: "Falhas",
                           value: totalFalha.toString(),
+                          color: Colors.redAccent,
                         ),
                         _MetricCard(
                           label: "Média Capital",
                           value: "R\$ ${mediaCapitalSocial.toStringAsFixed(2)}",
+                          color: kPrimaryBlue,
                         ),
                       ],
                     ),
@@ -146,9 +171,21 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                     _SectionTitle(
                       title: "Evolução dos contratos processados (mês)",
                     ),
-                    SizedBox(
+                    Container(
                       height: 180,
                       width: double.infinity,
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.2),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                          ),
+                        ],
+                      ),
                       child: BarChart(
                         BarChartData(
                           alignment: BarChartAlignment.spaceAround,
@@ -168,8 +205,11 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                                   barRods: [
                                     BarChartRodData(
                                       toY: entry.value.value.toDouble(),
-                                      color: Theme.of(context).primaryColor,
+                                      color:
+                                          kChartColors[entry.key %
+                                              kChartColors.length],
                                       width: 14,
+                                      borderRadius: BorderRadius.circular(4),
                                     ),
                                   ],
                                 ),
@@ -185,13 +225,41 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                                     return const SizedBox();
                                   return Text(
                                     contratosPorMes.keys.elementAt(idx),
-                                    style: const TextStyle(fontSize: 11),
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: kTextColor,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                                getTitlesWidget: (value, meta) {
+                                  return Text(
+                                    value.toInt().toString(),
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: kTextColor,
+                                    ),
                                   );
                                 },
                               ),
                             ),
                           ),
-                          gridData: FlGridData(show: true),
+                          gridData: FlGridData(
+                            show: true,
+                            drawHorizontalLine: true,
+                            horizontalInterval: 1,
+                            getDrawingHorizontalLine: (value) {
+                              return FlLine(
+                                color: kCardBorderColor,
+                                strokeWidth: 1,
+                              );
+                            },
+                          ),
                           borderData: FlBorderData(show: false),
                         ),
                       ),
@@ -200,54 +268,177 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                     const SizedBox(height: 24),
 
                     _SectionTitle(title: "Distribuição de regimes tributários"),
-                    SizedBox(
+                    Container(
                       height: 150,
-                      child: PieChart(
-                        PieChartData(
-                          sections: regimeDistribuicao.entries
-                              .map(
-                                (e) => PieChartSectionData(
-                                  title: e.key,
-                                  value: e.value.toDouble(),
-                                  color:
-                                      Colors.blueGrey[(regimeDistribuicao.keys
-                                                  .toList()
-                                                  .indexOf(e.key) +
-                                              1) *
-                                          100],
-                                  titleStyle: const TextStyle(fontSize: 11),
-                                ),
-                              )
-                              .toList(),
-                        ),
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.2),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                          ),
+                        ],
                       ),
+                      child: regimeDistribuicao.isEmpty
+                          ? const Center(
+                              child: Text(
+                                "Nenhum dado disponível",
+                                style: TextStyle(color: kTextColor),
+                              ),
+                            )
+                          : PieChart(
+                              PieChartData(
+                                sections: regimeDistribuicao.entries
+                                    .toList()
+                                    .asMap()
+                                    .entries
+                                    .map((e) {
+                                      final index = e.key;
+                                      final entry = e.value;
+                                      return PieChartSectionData(
+                                        title: '',
+                                        value: entry.value.toDouble(),
+                                        color:
+                                            kChartColors[index %
+                                                kChartColors.length],
+                                        radius: 60,
+                                        titleStyle: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white,
+                                        ),
+                                      );
+                                    })
+                                    .toList(),
+                              ),
+                            ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 6,
+                      children: regimeDistribuicao.entries
+                          .toList()
+                          .asMap()
+                          .entries
+                          .map((e) {
+                            final index = e.key;
+                            final entry = e.value;
+                            final color =
+                                kChartColors[index % kChartColors.length];
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: color,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  entry.key,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: kTextColor,
+                                  ),
+                                ),
+                              ],
+                            );
+                          })
+                          .toList(),
                     ),
 
                     const SizedBox(height: 16),
 
                     _SectionTitle(title: "Distribuição por tipo societário"),
-                    SizedBox(
+                    Container(
                       height: 150,
-                      child: PieChart(
-                        PieChartData(
-                          sections: tipoSocietarioDistribuicao.entries
-                              .map(
-                                (e) => PieChartSectionData(
-                                  title: e.key,
-                                  value: e.value.toDouble(),
-                                  color:
-                                      Colors.grey[(tipoSocietarioDistribuicao
-                                                  .keys
-                                                  .toList()
-                                                  .indexOf(e.key) +
-                                              1) *
-                                          100],
-                                  titleStyle: const TextStyle(fontSize: 11),
-                                ),
-                              )
-                              .toList(),
-                        ),
+                      padding: const EdgeInsets.all(8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.2),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                          ),
+                        ],
                       ),
+                      child: tipoSocietarioDistribuicao.isEmpty
+                          ? const Center(
+                              child: Text(
+                                "Nenhum dado disponível",
+                                style: TextStyle(color: kTextColor),
+                              ),
+                            )
+                          : PieChart(
+                              PieChartData(
+                                sections: tipoSocietarioDistribuicao.entries
+                                    .toList()
+                                    .asMap()
+                                    .entries
+                                    .map((e) {
+                                      final index = e.key;
+                                      final entry = e.value;
+                                      return PieChartSectionData(
+                                        title: '',
+                                        value: entry.value.toDouble(),
+                                        color:
+                                            kChartColors[index %
+                                                kChartColors.length],
+                                        radius: 60,
+                                        titleStyle: const TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.white,
+                                        ),
+                                      );
+                                    })
+                                    .toList(),
+                              ),
+                            ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 6,
+                      children: tipoSocietarioDistribuicao.entries
+                          .toList()
+                          .asMap()
+                          .entries
+                          .map((e) {
+                            final index = e.key;
+                            final entry = e.value;
+                            final color =
+                                kChartColors[index % kChartColors.length];
+                            return Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 12,
+                                  height: 12,
+                                  decoration: BoxDecoration(
+                                    color: color,
+                                    shape: BoxShape.circle,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  entry.key,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: kTextColor,
+                                  ),
+                                ),
+                              ],
+                            );
+                          })
+                          .toList(),
                     ),
 
                     const SizedBox(height: 24),
@@ -256,34 +447,133 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                     SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
                       child: DataTable(
+                        columnSpacing: 16,
                         columns: const [
-                          DataColumn(label: Text("ID")),
-                          DataColumn(label: Text("Empresa")),
-                          DataColumn(label: Text("CNPJ")),
-                          DataColumn(label: Text("Status")),
-                          DataColumn(label: Text("Upload")),
-                          DataColumn(label: Text("Processamento")),
-                          DataColumn(label: Text("Ações")),
+                          DataColumn(
+                            label: Text(
+                              "ID",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: kTextColor,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Empresa",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: kTextColor,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "CNPJ",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: kTextColor,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Status",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: kTextColor,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Upload",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: kTextColor,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Processamento",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: kTextColor,
+                              ),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              "Ações",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: kTextColor,
+                              ),
+                            ),
+                          ),
                         ],
                         rows: contratos
                             .map(
                               (c) => DataRow(
                                 cells: [
-                                  DataCell(Text(c.id)),
-                                  DataCell(Text(c.companyName)),
-                                  DataCell(Text(c.cnpj)),
-                                  DataCell(Text(c.status)),
-                                  DataCell(Text(c.uploadedAt)),
-                                  DataCell(Text(c.processedAt ?? "-")),
+                                  DataCell(
+                                    Text(
+                                      c.id,
+                                      style: const TextStyle(color: kTextColor),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      c.companyName,
+                                      style: const TextStyle(color: kTextColor),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      c.cnpj,
+                                      style: const TextStyle(color: kTextColor),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      c.status,
+                                      style: TextStyle(
+                                        color: c.status == 'processed'
+                                            ? kPrimaryGreen
+                                            : c.status == 'failed'
+                                            ? Colors.redAccent
+                                            : kPrimaryBlue,
+                                      ),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      c.uploadedAt,
+                                      style: const TextStyle(color: kTextColor),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      c.processedAt ?? "-",
+                                      style: const TextStyle(color: kTextColor),
+                                    ),
+                                  ),
                                   DataCell(
                                     Row(
                                       children: [
                                         IconButton(
-                                          icon: const Icon(Icons.visibility),
+                                          icon: const Icon(
+                                            Icons.visibility,
+                                            color: kPrimaryBlue,
+                                          ),
                                           onPressed: () {},
                                         ),
                                         IconButton(
-                                          icon: const Icon(Icons.delete),
+                                          icon: const Icon(
+                                            Icons.delete,
+                                            color: Colors.redAccent,
+                                          ),
                                           onPressed: () {},
                                         ),
                                       ],
@@ -306,8 +596,13 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
 class _MetricCard extends StatelessWidget {
   final String label;
   final String value;
+  final Color color;
 
-  const _MetricCard({required this.label, required this.value});
+  const _MetricCard({
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -317,21 +612,28 @@ class _MetricCard extends StatelessWidget {
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: kCardBorderColor),
         borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+          ),
+        ],
       ),
       child: Center(
         child: Column(
-          mainAxisSize: MainAxisSize.min, // ADICIONADO para evitar overflow
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Flexible(
-              // ADICIONADO para evitar overflow
               child: Text(
                 value,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: color,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -339,7 +641,7 @@ class _MetricCard extends StatelessWidget {
             Flexible(
               child: Text(
                 label,
-                style: const TextStyle(fontSize: 12),
+                style: const TextStyle(fontSize: 12, color: kTextColor),
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -363,7 +665,11 @@ class _SectionTitle extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 6.0),
         child: Text(
           title,
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: kPrimaryBlue,
+          ),
         ),
       ),
     );

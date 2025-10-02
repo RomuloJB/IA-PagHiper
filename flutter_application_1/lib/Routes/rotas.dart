@@ -3,4 +3,5 @@ class Rotas {
   static const String Upload = '/upload';
   static const String login = '/login';
   static const String dashboard = '/dashboard';
+  static const String listagem = '/listagem';
 }
