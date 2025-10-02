@@ -51,7 +51,6 @@ class WidgetDashboard extends StatefulWidget {
 class _WidgetDashboardState extends State<WidgetDashboard> {
   List<DashboardContrato> contratos = [];
 
-  // Indicadores
   int totalContratos = 0;
   int totalProcessados = 0;
   int totalFalha = 0;
@@ -87,23 +86,20 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
               contratos.length
         : 0;
 
-    // Evolução de contratos processados por mês
     contratosPorMes.clear();
     for (var c in contratos) {
       if (c.processedAt != null) {
-        final mes = c.processedAt!.substring(0, 7); // yyyy-MM
+        final mes = c.processedAt!.substring(0, 7);
         contratosPorMes[mes] = (contratosPorMes[mes] ?? 0) + 1;
       }
     }
 
-    // Distribuição de regimes tributários
     regimeDistribuicao.clear();
     for (var c in contratos) {
       regimeDistribuicao[c.corporateRegime] =
           (regimeDistribuicao[c.corporateRegime] ?? 0) + 1;
     }
 
-    // Distribuição por tipo societário
     tipoSocietarioDistribuicao.clear();
     for (var c in contratos) {
       tipoSocietarioDistribuicao[c.societyType] =
@@ -122,9 +118,10 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    // Cards de métricas globais
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    // Cards de métricas globais - simples
+                    Wrap(
+                      spacing: 12,
+                      runSpacing: 12,
                       children: [
                         _MetricCard(
                           label: "Total Contratos",
@@ -144,14 +141,14 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 24),
 
-                    // Gráfico evolução contratos processados por mês
                     _SectionTitle(
                       title: "Evolução dos contratos processados (mês)",
                     ),
                     SizedBox(
-                      height: 250,
+                      height: 180,
+                      width: double.infinity,
                       child: BarChart(
                         BarChartData(
                           alignment: BarChartAlignment.spaceAround,
@@ -171,8 +168,8 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                                   barRods: [
                                     BarChartRodData(
                                       toY: entry.value.value.toDouble(),
-                                      color: Colors.blue,
-                                      width: 18,
+                                      color: Theme.of(context).primaryColor,
+                                      width: 14,
                                     ),
                                   ],
                                 ),
@@ -188,24 +185,23 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                                     return const SizedBox();
                                   return Text(
                                     contratosPorMes.keys.elementAt(idx),
-                                    style: const TextStyle(fontSize: 12),
+                                    style: const TextStyle(fontSize: 11),
                                   );
                                 },
                               ),
                             ),
                           ),
                           gridData: FlGridData(show: true),
-                          borderData: FlBorderData(show: true),
+                          borderData: FlBorderData(show: false),
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 24),
 
-                    // Distribuição de regimes tributários (pizza)
                     _SectionTitle(title: "Distribuição de regimes tributários"),
                     SizedBox(
-                      height: 200,
+                      height: 150,
                       child: PieChart(
                         PieChartData(
                           sections: regimeDistribuicao.entries
@@ -214,10 +210,12 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                                   title: e.key,
                                   value: e.value.toDouble(),
                                   color:
-                                      Colors.primaries[regimeDistribuicao.keys
-                                              .toList()
-                                              .indexOf(e.key) %
-                                          Colors.primaries.length],
+                                      Colors.blueGrey[(regimeDistribuicao.keys
+                                                  .toList()
+                                                  .indexOf(e.key) +
+                                              1) *
+                                          100],
+                                  titleStyle: const TextStyle(fontSize: 11),
                                 ),
                               )
                               .toList(),
@@ -225,12 +223,11 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                       ),
                     ),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 16),
 
-                    // Distribuição por tipo societário (pizza)
                     _SectionTitle(title: "Distribuição por tipo societário"),
                     SizedBox(
-                      height: 200,
+                      height: 150,
                       child: PieChart(
                         PieChartData(
                           sections: tipoSocietarioDistribuicao.entries
@@ -239,11 +236,13 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                                   title: e.key,
                                   value: e.value.toDouble(),
                                   color:
-                                      Colors.accents[tipoSocietarioDistribuicao
-                                              .keys
-                                              .toList()
-                                              .indexOf(e.key) %
-                                          Colors.accents.length],
+                                      Colors.grey[(tipoSocietarioDistribuicao
+                                                  .keys
+                                                  .toList()
+                                                  .indexOf(e.key) +
+                                              1) *
+                                          100],
+                                  titleStyle: const TextStyle(fontSize: 11),
                                 ),
                               )
                               .toList(),
@@ -251,52 +250,50 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
                       ),
                     ),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 24),
 
-                    // Tabela/lista de contratos
                     _SectionTitle(title: "Lista de contratos"),
-                    DataTable(
-                      columns: const [
-                        DataColumn(label: Text("ID")),
-                        DataColumn(label: Text("Empresa")),
-                        DataColumn(label: Text("CNPJ")),
-                        DataColumn(label: Text("Status")),
-                        DataColumn(label: Text("Upload")),
-                        DataColumn(label: Text("Processamento")),
-                        DataColumn(label: Text("Ações")),
-                      ],
-                      rows: contratos
-                          .map(
-                            (c) => DataRow(
-                              cells: [
-                                DataCell(Text(c.id)),
-                                DataCell(Text(c.companyName)),
-                                DataCell(Text(c.cnpj)),
-                                DataCell(Text(c.status)),
-                                DataCell(Text(c.uploadedAt)),
-                                DataCell(Text(c.processedAt ?? "-")),
-                                DataCell(
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.visibility),
-                                        onPressed: () {
-                                          // Exibir detalhes
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete),
-                                        onPressed: () {
-                                          // Excluir ação (simulação)
-                                        },
-                                      ),
-                                    ],
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: const [
+                          DataColumn(label: Text("ID")),
+                          DataColumn(label: Text("Empresa")),
+                          DataColumn(label: Text("CNPJ")),
+                          DataColumn(label: Text("Status")),
+                          DataColumn(label: Text("Upload")),
+                          DataColumn(label: Text("Processamento")),
+                          DataColumn(label: Text("Ações")),
+                        ],
+                        rows: contratos
+                            .map(
+                              (c) => DataRow(
+                                cells: [
+                                  DataCell(Text(c.id)),
+                                  DataCell(Text(c.companyName)),
+                                  DataCell(Text(c.cnpj)),
+                                  DataCell(Text(c.status)),
+                                  DataCell(Text(c.uploadedAt)),
+                                  DataCell(Text(c.processedAt ?? "-")),
+                                  DataCell(
+                                    Row(
+                                      children: [
+                                        IconButton(
+                                          icon: const Icon(Icons.visibility),
+                                          onPressed: () {},
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete),
+                                          onPressed: () {},
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          )
-                          .toList(),
+                                ],
+                              ),
+                            )
+                            .toList(),
+                      ),
                     ),
                   ],
                 ),
@@ -306,7 +303,6 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
   }
 }
 
-// Widgets auxiliares
 class _MetricCard extends StatelessWidget {
   final String label;
   final String value;
@@ -315,19 +311,39 @@ class _MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Container(
-        width: 120,
-        height: 70,
-        padding: const EdgeInsets.all(8),
+    return Container(
+      width: 120,
+      constraints: const BoxConstraints(minHeight: 60, maxHeight: 80),
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Center(
         child: Column(
+          mainAxisSize: MainAxisSize.min, // ADICIONADO para evitar overflow
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              value,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            Flexible(
+              // ADICIONADO para evitar overflow
+              child: Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            Text(label, style: const TextStyle(fontSize: 13)),
+            Flexible(
+              child: Text(
+                label,
+                style: const TextStyle(fontSize: 12),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ],
         ),
       ),
@@ -344,10 +360,10 @@ class _SectionTitle extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        padding: const EdgeInsets.symmetric(vertical: 6.0),
         child: Text(
           title,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
         ),
       ),
     );
