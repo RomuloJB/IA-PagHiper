@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_application_1/banco/DAO/ContractsDAO.dart';
 import 'package:flutter_application_1/banco/DAO/PartnerDAO.dart';
 import 'package:flutter_application_1/banco/DAO/ProcessingLogs.dart';
@@ -30,29 +31,19 @@ class ContractService {
   }
 
   Future<Map<String, dynamic>> _mockAnalyzeApi(PlatformFile file) async {
-    await Future.delayed(const Duration(seconds: 3));
-    return {
-      "company_name": "Empresa Fictícia LTDA",
-      "cnpj": "12.345.678/0001-99",
-      "foundation_date": "2023-05-15",
-      "capital_social": 100000.50,
-      "address": "Rua dos Contratos, 123",
-      "city": "São Paulo",
-      "state": "SP",
-      "confidence": 0.95,
-      "partners": [
-        {
-          "name": "João da Silva",
-          "cpf_cnpj": "111.222.333-44",
-          "role": "Administrador",
-        },
-        {
-          "name": "Maria Oliveira",
-          "cpf_cnpj": "444.555.666-77",
-          "role": "Sócio",
-        },
-      ],
-    };
+    await Future.delayed(const Duration(seconds: 3)); // simula tempo de API
+    final String response = await rootBundle.loadString(
+      'assets/contratos.json',
+    );
+    final List<dynamic> data = json.decode(response);
+
+    // aqui você pode escolher a lógica:
+    // 1. Sempre o primeiro contrato:
+    return data.first as Map<String, dynamic>;
+
+    // // 2. Escolher aleatório para variar:
+    // final random = Random();
+    // return data[random.nextInt(data.length)] as Map<String, dynamic>;
   }
 
   // MUDANÇA: Agora retorna o Map<String, dynamic> da API

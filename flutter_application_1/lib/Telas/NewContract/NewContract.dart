@@ -1,8 +1,10 @@
+// lib/screens/new_contract_screen.dart
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Services/ContractService.dart';
 import 'package:intl/intl.dart';
-import 'package:pdfx/pdfx.dart'; // 1. Importe o pacote
+import 'package:pdfx/pdfx.dart';
 
 class NewContractScreen extends StatefulWidget {
   const NewContractScreen({Key? key}) : super(key: key);
@@ -21,13 +23,10 @@ class _NewContractScreenState extends State<NewContractScreen> {
   bool _isLoading = false;
   String? _statusMessage;
   Color _messageColor = Colors.black;
-
-  // 2. Adicione o controller para o PDF
   PdfController? _pdfController;
 
   @override
   void dispose() {
-    // 3. Garanta que o controller seja liberado da memória
     _pdfController?.dispose();
     _contractNameController.dispose();
     _notesController.dispose();
@@ -36,7 +35,7 @@ class _NewContractScreenState extends State<NewContractScreen> {
 
   void _resetScreen() {
     setState(() {
-      _pdfController?.dispose(); // Limpa o controller antigo
+      _pdfController?.dispose();
       _pdfController = null;
       _selectedFile = null;
       _processedData = null;
@@ -52,37 +51,59 @@ class _NewContractScreenState extends State<NewContractScreen> {
     final result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
-      withData: true, // 4. MUITO IMPORTANTE: Peça os bytes do arquivo
+      withData: true,
     );
 
     if (result != null && result.files.first.bytes != null) {
       final file = result.files.first;
       setState(() {
         _selectedFile = file;
-        // 5. Inicialize o controller com os bytes do arquivo
         _pdfController = PdfController(
           document: PdfDocument.openData(file.bytes!),
         );
       });
     } else {
-      // O usuário cancelou ou o arquivo não veio com os dados
-      setState(() {
-        _statusMessage = "Não foi possível carregar o arquivo PDF.";
-        _messageColor = Colors.red;
-      });
+      _showSnack("Não foi possível carregar o arquivo PDF.", Colors.red);
+    }
+  }
+
+  Future<void> _confirmAndUpload() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
+        title: const Text("Confirmar Envio"),
+        content: Text(
+          "Você realmente deseja enviar o contrato ${_selectedFile!.name} para análise?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancelar", style: TextStyle(color: Colors.red)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF24d17a),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text("Enviar"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      _uploadAndProcess();
     }
   }
 
   Future<void> _uploadAndProcess() async {
-    // ... (nenhuma mudança aqui, o método continua o mesmo)
     if (_selectedFile == null) return;
 
     final validationError = _contractService.validateFile(_selectedFile!);
     if (validationError != null) {
-      setState(() {
-        _statusMessage = validationError;
-        _messageColor = Colors.red;
-      });
+      _showSnack(validationError, Colors.red);
       return;
     }
 
@@ -105,127 +126,203 @@ class _NewContractScreenState extends State<NewContractScreen> {
         _statusMessage = 'Contrato processado e salvo com sucesso!';
         _messageColor = Colors.green;
         _processedData = result;
-        _pdfController?.dispose(); // Libera o PDF da memória após o sucesso
+        _pdfController?.dispose();
         _pdfController = null;
       });
+      _showSnack(_statusMessage!, Colors.green);
     } catch (e) {
-      setState(() {
-        _statusMessage = 'Erro: ${e.toString().replaceAll("Exception: ", "")}';
-        _messageColor = Colors.red;
-      });
+      _showSnack(
+        'Erro: ${e.toString().replaceAll("Exception: ", "")}',
+        Colors.red,
+      );
     } finally {
       setState(() => _isLoading = false);
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Novo Contrato')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (_processedData == null) ...[
-              OutlinedButton.icon(
-                icon: const Icon(Icons.upload_file),
-                label: const Text('Selecionar PDF'),
-                onPressed: _isLoading ? null : _pickFile,
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-              const SizedBox(height: 16),
-              // O preview do PDF será renderizado aqui
-              if (_pdfController != null) _buildPdfPreview(),
-              const SizedBox(height: 24),
-              if (_selectedFile != null) ...[
-                TextField(
-                  controller: _contractNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nome do Contrato (Opcional)',
-                    border: OutlineInputBorder(),
-                  ),
-                  enabled: !_isLoading,
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _notesController,
-                  decoration: const InputDecoration(
-                    labelText: 'Observações (Opcional)',
-                    border: OutlineInputBorder(),
-                  ),
-                  maxLines: 3,
-                  enabled: !_isLoading,
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: (_selectedFile == null || _isLoading)
-                      ? null
-                      : _uploadAndProcess,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 3,
-                          ),
-                        )
-                      : const Text('Enviar Contrato'),
-                ),
-              ],
-            ],
-            const SizedBox(height: 24),
-            if (_statusMessage != null)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16.0),
-                  child: Text(
-                    _statusMessage!,
-                    style: TextStyle(color: _messageColor, fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            if (_processedData != null) _buildResultsCard(_processedData!),
-          ],
-        ),
+  void _showSnack(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: color,
+        content: Text(message, style: const TextStyle(color: Colors.white)),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
 
-  // 6. NOVO WIDGET para mostrar o PDF
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      appBar: AppBar(
+        title: const Text("Submeter novo contrato"),
+        centerTitle: true,
+        elevation: 0,
+        backgroundColor: const Color(0xFF0857C3),
+        foregroundColor: Colors.white,
+      ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (_processedData == null) ...[
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.upload_file, size: 22),
+                    label: const Text('Selecionar PDF'),
+                    onPressed: _isLoading ? null : _pickFile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF24d17a),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  if (_pdfController != null) _buildPdfPreview(),
+                  const SizedBox(height: 24),
+                  if (_selectedFile != null) ...[
+                    TextField(
+                      controller: _contractNameController,
+                      decoration: InputDecoration(
+                        labelText: 'Nome do Contrato (Opcional)',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Colors.grey,
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF0857C3),
+                            width: 2,
+                          ),
+                        ),
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        floatingLabelStyle: const TextStyle(
+                          color: Color(0xFF0857C3),
+                        ),
+                      ),
+                      enabled: !_isLoading,
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _notesController,
+                      decoration: InputDecoration(
+                        labelText: 'Observações (Opcional)',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Colors.grey,
+                            width: 1,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(
+                            color: Color(0xFF0857C3),
+                            width: 2,
+                          ),
+                        ),
+                        labelStyle: const TextStyle(color: Colors.grey),
+                        floatingLabelStyle: const TextStyle(
+                          color: Color(0xFF0857C3),
+                        ),
+                      ),
+                      maxLines: 3,
+                      enabled: !_isLoading,
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: (_selectedFile == null || _isLoading)
+                          ? null
+                          : _confirmAndUpload,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: const Color(0xFF24d17a),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: const Text('Enviar Contrato'),
+                    ),
+                  ],
+                ],
+                const SizedBox(height: 20),
+                if (_processedData != null) _buildResultsCard(_processedData!),
+              ],
+            ),
+          ),
+
+          // Overlay durante o carregamento
+          if (_isLoading)
+            Positioned.fill(
+              child: Container(
+                color: const Color.fromARGB(206, 0, 0, 0),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      CircularProgressIndicator(color: Colors.white),
+                      SizedBox(height: 16),
+                      Text(
+                        "Enviando contrato para análise...",
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPdfPreview() {
     return Column(
       children: [
         Text(
           _selectedFile!.name,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         SizedBox(
-          height: 400, // Defina uma altura para o visualizador
+          height: 420,
           child: Card(
-            elevation: 4,
-            child: PdfView(
-              controller: _pdfController!,
-              scrollDirection: Axis.vertical,
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
             ),
+            clipBehavior: Clip.antiAlias,
+            surfaceTintColor: const Color(0xFF24d17a),
+            child: PdfView(controller: _pdfController!),
           ),
         ),
       ],
     );
   }
 
-  // Widget de resultados (sem alterações)
   Widget _buildResultsCard(Map<String, dynamic> data) {
     final partners = data['partners'] as List;
     final currencyFormatter = NumberFormat.currency(
@@ -236,43 +333,50 @@ class _NewContractScreenState extends State<NewContractScreen> {
     return Column(
       children: [
         Card(
-          elevation: 4,
+          elevation: 3,
+          color: Color.fromARGB(255, 255, 255, 255),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
                   'Resultados da Análise',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                const Divider(height: 20),
+                const Divider(height: 24, thickness: 1),
                 ListTile(
-                  leading: const Icon(Icons.business),
+                  leading: const Icon(Icons.business, color: Colors.blueAccent),
                   title: Text(data['company_name'] ?? 'Não informado'),
-                  subtitle: const Text('Nome da Empresa'),
+                  subtitle: Text(data['filename']),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.pin),
+                  leading: const Icon(Icons.pin, color: Colors.orangeAccent),
                   title: Text(data['cnpj'] ?? 'Não informado'),
                   subtitle: const Text('CNPJ'),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.attach_money),
+                  leading: const Icon(
+                    Icons.attach_money,
+                    color: Colors.greenAccent,
+                  ),
                   title: Text(
                     currencyFormatter.format(data['capital_social'] ?? 0),
                   ),
                   subtitle: const Text('Capital Social'),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 16),
                 const Text(
                   'Sócios Encontrados',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 5),
+                const SizedBox(height: 8),
                 for (var partner in partners)
                   ListTile(
-                    leading: const Icon(Icons.person),
+                    leading: const Icon(Icons.person, color: Colors.purple),
                     title: Text(partner['name']),
                     subtitle: Text(partner['role']),
                   ),
@@ -285,6 +389,15 @@ class _NewContractScreenState extends State<NewContractScreen> {
           icon: const Icon(Icons.add),
           label: const Text('Analisar Outro Contrato'),
           onPressed: _resetScreen,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFF0857C3),
+            foregroundColor: Color.fromARGB(255, 255, 255, 255),
+            minimumSize: Size(250, 50),
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         ),
       ],
     );
