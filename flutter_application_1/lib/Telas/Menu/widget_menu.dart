@@ -24,7 +24,7 @@ class _WidgetMenuState extends State<WidgetMenu> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF34302D),
+        backgroundColor: const Color(0xFF0860DB),
         titleTextStyle: const TextStyle(
           color: Colors.white,
           fontSize: 20,

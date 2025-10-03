@@ -11,17 +11,37 @@ class WidgetLogin extends StatelessWidget {
     String password,
     bool rememberMe,
   ) async {
-    // TODO: substitua pela sua lógica real de autenticação
     if (email.isEmpty || password.isEmpty) {
       throw Exception('Preencha e-mail e senha.');
     }
 
-    // Exemplo: autenticação "ok" → navega para a Home
-    if (context.mounted) {
-      Navigator.of(context).pushReplacementNamed(Rotas.home);
+    // Autenticação falsa (hardcoded)
+    if (email.toLowerCase() == 'admin@admin.com' && password == 'admin123') {
+      // (Opcional) você pode salvar algo em memória global aqui se quiser
+      if (context.mounted) {
+        Navigator.of(context).pushReplacementNamed(Rotas.dashboard);
+      }
+    } else {
+      throw Exception('Credenciais inválidas');
     }
   }
 
+  /*
+  Future<void> _onSubmit(
+    BuildContext context,
+    String email,
+    String password,
+    bool rememberMe,
+  ) async {
+    if (email.isEmpty || password.isEmpty) {
+      throw Exception('Preencha e-mail e senha.');
+    }
+
+    if (context.mounted) {
+      Navigator.of(context).pushReplacementNamed(Rotas.dashboard);
+    }
+  }
+*/
   void _onForgotPassword(BuildContext context) {
     showDialog<void>(
       context: context,
@@ -43,7 +63,10 @@ class WidgetLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('IA PagHiper')),
+      appBar: AppBar(
+        title: const Text('IA PagHiper'),
+        backgroundColor: Color(0xFF0860DB),
+      ),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),

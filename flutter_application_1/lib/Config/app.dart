@@ -26,14 +26,14 @@ class App extends StatelessWidget {
         scaffoldBackgroundColor: const Color.fromARGB(255, 216, 216, 216),
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: Rotas.login, // <- agora inicia no login
+      initialRoute: Rotas.home,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('pt', 'BR')],
-      home: NewContractScreen(),
+      home: WidgetLogin(),
       routes: {
         Rotas.login: (context) => const WidgetLogin(),
         Rotas.Upload: (context) => const NewContractScreen(),

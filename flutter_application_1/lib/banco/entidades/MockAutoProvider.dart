@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:flutter_application_1/banco/entidades/AuthProvider.dart';
 
 class MockAuthProvider implements AuthProvider {
-  static const _email = 'adm@adm.com';
-  static const _password = 'adm123';
+  static const _email = 'admin@admin.com';
+  static const _password = 'admin123';
 
   AuthSession? _session;
 

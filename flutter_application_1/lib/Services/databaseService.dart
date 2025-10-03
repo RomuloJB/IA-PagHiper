@@ -58,6 +58,7 @@ class DatabaseService {
         id TEXT PRIMARY KEY,
         name TEXT,
         email TEXT,
+        senha TEXT,
         created_at TEXT
       )
     ''');
@@ -162,6 +163,13 @@ class DatabaseService {
         created_at TEXT NOT NULL,
         FOREIGN KEY(contract_id) REFERENCES contracts(id) ON DELETE CASCADE
       )
+    ''');
+
+    await db.execute('''
+      INSERT INTO users (name, email, senha) VALUES (
+      'admin',
+      'admin@admin.com',
+      'admin123')
     ''');
 
     print('Tabelas criadas com sucesso!');

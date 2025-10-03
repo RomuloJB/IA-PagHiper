@@ -12,7 +12,7 @@ class AuthSession {
   final String accessToken;
   final String? refreshToken;
   final String email;
-  final DateTime? expiresAt; // opcional
+  final DateTime? expiresAt;
 
   AuthSession({
     required this.accessToken,

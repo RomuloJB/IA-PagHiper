@@ -28,7 +28,7 @@ class _LoginFormState extends State<LoginForm> {
 
   bool _isLoading = false;
   bool _obscure = true;
-  bool _rememberMe = false;
+  bool _rememberMe = true;
 
   @override
   void dispose() {
@@ -113,12 +113,6 @@ class _LoginFormState extends State<LoginForm> {
                 hintText: 'seu@email.com',
                 prefixIcon: Icon(Icons.email_outlined),
                 border: OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(
-                    color: Color(0xFF0860DB), // azul ao focar
-                    width: 2,
-                  ),
-                ),
               ),
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
@@ -137,12 +131,6 @@ class _LoginFormState extends State<LoginForm> {
                 labelText: 'Senha',
                 prefixIcon: const Icon(Icons.lock_outline),
                 border: const OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(
-                    color: Color(0xFF0860DB),
-                    width: 2,
-                  ),
-                ),
                 suffixIcon: IconButton(
                   tooltip: _obscure ? 'Mostrar senha' : 'Ocultar senha',
                   icon: Icon(
@@ -172,14 +160,10 @@ class _LoginFormState extends State<LoginForm> {
                         children: [
                           Checkbox(
                             value: _rememberMe,
-                            activeColor: const Color(0xFF24D17A),
-                            onChanged: (value) {
-                              setState(() {
-                                _rememberMe = value ?? false;
-                              });
-                            },
+                            onChanged: (v) =>
+                                setState(() => _rememberMe = v ?? false),
                           ),
-                          const Text('Lembrar-me'),
+                          const Text('Lembrar de mim'),
                         ],
                       ),
                     ),
@@ -188,26 +172,26 @@ class _LoginFormState extends State<LoginForm> {
                   const Spacer(),
                 TextButton(
                   onPressed: widget.onForgotPassword,
-                  child: const Text(
-                    'Esqueci minha senha',
-                    style: TextStyle(color: Color(0xFF0860DB), fontSize: 14),
-                  ),
+                  child: const Text('Esqueci minha senha'),
                 ),
               ],
             ),
             const SizedBox(height: 36),
             SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF24D17A),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+              height: 48,
+              child: FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: cs.primary,
+                  foregroundColor: cs.onPrimary,
                 ),
                 onPressed: _isLoading ? null : _handleSubmit,
-                child: const Text(
-                  'Entrar',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 22,
+                        height: 22,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Entrar'),
               ),
             ),
           ],

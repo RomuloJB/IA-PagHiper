@@ -16,7 +16,7 @@ class AuthService {
 
   void init({AuthProvider? provider}) {
     _provider =
-        provider ?? MockAuthProvider(); // Troque aqui para HttpAuthProvider
+        provider ?? MockAuthProvider(); // Trocar aqui para HttpAuthProvider
   }
 
   Future<void> load() async {
@@ -29,7 +29,7 @@ class AuthService {
     bool remember = true,
   }) async {
     _session = await _provider.login(email: email, password: password);
-    // se remember = false, você pode decidir não persistir (mover persistência p/ provider condicionalmente)
+    // se rememberMe = false, eu posso decidir não persistir (mover persistência p/ provider condicionalmente)
   }
 
   Future<void> logout() async {

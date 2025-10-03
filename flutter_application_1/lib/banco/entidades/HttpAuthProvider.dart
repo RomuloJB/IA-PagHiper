@@ -104,7 +104,7 @@ class HttpAuthProvider implements AuthProvider {
         : null;
 
     if (expiresAt != null && DateTime.now().isAfter(expiresAt)) {
-      // Tentar refresh automático (opcional)
+      // Tentar refresh automático
       if (refresh != null) {
         return await refreshSession(refresh);
       }
