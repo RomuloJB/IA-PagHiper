@@ -2,10 +2,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_application_1/Routes/rotas.dart';
 
 const Color kBackgroundColor = Color(0xFFF5F7FA);
-const Color kPrimaryBlue = Color(0xFF1E88E5);
-const Color kPrimaryGreen = Color(0xFF4CAF50);
+const Color kPrimaryBlue = Color(0xFF0857C3);
+const Color kPrimaryGreen = Color(0xFF24d17a);
 const Color kTextColor = Color(0xFF212121);
 const Color kCardBorderColor = Color(0xFFE0E0E0);
 const List<Color> kChartColors = [
@@ -132,6 +133,29 @@ class _WidgetDashboardState extends State<WidgetDashboard> {
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
+        iconTheme: IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.upload_file,
+              color: Color.fromARGB(255, 255, 255, 255),
+            ),
+            tooltip: 'Novo Contrato',
+            onPressed: () {
+              Navigator.pushNamed(context, Rotas.Upload);
+            },
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.list,
+              color: Color.fromARGB(255, 255, 255, 255),
+            ),
+            tooltip: 'Novo Contrato',
+            onPressed: () {
+              Navigator.pushNamed(context, Rotas.Upload);
+            },
+          ),
+        ],
       ),
       body: contratos.isEmpty
           ? const Center(child: CircularProgressIndicator(color: kPrimaryBlue))

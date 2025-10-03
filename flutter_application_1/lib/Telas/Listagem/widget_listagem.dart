@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 const Color kBackgroundColor = Color(0xFFF5F7FA);
-const Color kPrimaryBlue = Color(0xFF1E88E5);
-const Color kPrimaryGreen = Color(0xFF4CAF50);
+const Color kPrimaryBlue = Color(0xFF0857C3);
+const Color kPrimaryGreen = Color(0xFF24d17a);
 const Color kTextColor = Color(0xFF212121);
 const Color kCardBorderColor = Color(0xFFE0E0E0);
 
@@ -128,6 +128,7 @@ class _WidgetListagemState extends State<WidgetListagem> {
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: erroCarregamento != null
           ? Center(
@@ -159,6 +160,25 @@ class _ContratoCard extends StatelessWidget {
   final DashboardContrato contrato;
 
   const _ContratoCard({required this.contrato});
+
+  void _mostrarModal(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Teste'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Fechar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
