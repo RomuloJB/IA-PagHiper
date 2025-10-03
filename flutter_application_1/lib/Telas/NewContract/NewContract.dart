@@ -2,6 +2,7 @@
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Routes/rotas.dart';
 import 'package:flutter_application_1/Services/ContractService.dart';
 import 'package:intl/intl.dart';
 import 'package:pdfx/pdfx.dart';
@@ -385,18 +386,40 @@ class _NewContractScreenState extends State<NewContractScreen> {
           ),
         ),
         const SizedBox(height: 20),
-        ElevatedButton.icon(
-          icon: const Icon(Icons.add),
-          label: const Text('Analisar Outro Contrato'),
-          onPressed: _resetScreen,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color(0xFF0857C3),
-            foregroundColor: Color.fromARGB(255, 255, 255, 255),
-            minimumSize: Size(250, 50),
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+        Center(
+          child: Wrap(
+            spacing: 6,
+            children: [
+              ElevatedButton.icon(
+                icon: const Icon(Icons.add),
+                label: const Text('Analisar Outro Contrato'),
+                onPressed: _resetScreen,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF0857C3),
+                  foregroundColor: Color.fromARGB(255, 255, 255, 255),
+                  minimumSize: Size(200, 50),
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.add),
+                label: const Text('Ir para Dashboard'),
+                onPressed: () =>
+                    Navigator.of(context).pushNamed(Rotas.dashboard),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF24d17a),
+                  foregroundColor: Color.fromARGB(255, 255, 255, 255),
+                  minimumSize: Size(200, 50),
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
