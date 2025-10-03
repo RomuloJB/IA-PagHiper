@@ -15,9 +15,7 @@ class WidgetLogin extends StatelessWidget {
       throw Exception('Preencha e-mail e senha.');
     }
 
-    // Autenticação falsa (hardcoded)
     if (email.toLowerCase() == 'admin@admin.com' && password == 'admin123') {
-      // (Opcional) você pode salvar algo em memória global aqui se quiser
       if (context.mounted) {
         Navigator.of(context).pushReplacementNamed(Rotas.dashboard);
       }
