@@ -58,7 +58,7 @@ class DatabaseService {
         id TEXT PRIMARY KEY,
         name TEXT,
         email TEXT,
-        senha TEXT,
+        password TEXT,
         created_at TEXT
       )
     ''');
