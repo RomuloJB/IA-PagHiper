@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Componentes/BotaoFooter/widget_bottao_footer_navigation.dart';
-import 'package:flutter_application_1/Componentes/Drawer/widget_drawer.dart';
-import 'package:flutter_application_1/Telas/Agendamento/widget_agendamento.dart';
+import 'package:flutter_application_1/componentes/BotaoFooter/widget_bottao_footer_navigation.dart';
+import 'package:flutter_application_1/componentes/Drawer/widget_drawer.dart';
+import 'package:flutter_application_1/telas/Agendamento/WidgetAgendamento.dart';
 
 class WidgetMenu extends StatefulWidget {
   const WidgetMenu({super.key});

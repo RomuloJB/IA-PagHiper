@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Routes/rotas.dart';
-import 'package:flutter_application_1/Telas/Cadastro/widget_cadastro.dart';
-import 'package:flutter_application_1/Telas/Dashboard/widget_dashboard.dart';
-import 'package:flutter_application_1/Telas/Listagem/widget_listagem.dart';
-import 'package:flutter_application_1/Telas/Login/widget_login.dart';
-import 'package:flutter_application_1/Telas/Menu/widget_menu.dart';
+import 'package:flutter_application_1/Telas/Cadastro/WidgetCadastro.dart';
+import 'package:flutter_application_1/Telas/Dashboard/WidgetDashboard.dart';
+import 'package:flutter_application_1/Telas/Listagem/WidgetListagem.dart';
+import 'package:flutter_application_1/Telas/Login/WidgetLogin.dart';
+import 'package:flutter_application_1/Telas/Menu/WidgetMenu.dart';
 import 'package:flutter_application_1/Telas/NewContract/NewContract.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 

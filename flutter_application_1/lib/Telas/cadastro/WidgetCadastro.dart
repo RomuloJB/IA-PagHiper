@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Componentes/BotaoGenerico/primary_button.dart';
+import 'package:flutter_application_1/componentes/BotaoGenerico/primary_button.dart';
 import 'package:flutter_application_1/banco/entidades/User.dart';
 import 'package:uuid/uuid.dart';
 

@@ -3,9 +3,9 @@ import 'dart:math';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_application_1/banco/DAO/ContractsDAO.dart';
-import 'package:flutter_application_1/banco/DAO/PartnerDAO.dart';
-import 'package:flutter_application_1/banco/DAO/ProcessingLogs.dart';
+import 'package:flutter_application_1/banco/dao/ContractsDAO.dart';
+import 'package:flutter_application_1/banco/dao/PartnerDAO.dart';
+import 'package:flutter_application_1/banco/dao/ProcessingLogs.dart';
 import 'package:flutter_application_1/banco/entidades/Contract.dart';
 import 'package:flutter_application_1/banco/entidades/Partner.dart';
 import 'package:flutter_application_1/banco/entidades/ProcessingLog.dart';

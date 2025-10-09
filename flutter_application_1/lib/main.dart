@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Config/app.dart';
+import 'package:flutter_application_1/config/App.dart';
 import 'package:flutter_application_1/Services/databaseService.dart';
 
 void main() async {
