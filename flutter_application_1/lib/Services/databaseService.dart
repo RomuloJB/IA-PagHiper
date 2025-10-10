@@ -166,7 +166,7 @@ class DatabaseService {
     ''');
 
     await db.execute('''
-      INSERT INTO users (name, email, senha) VALUES (
+      INSERT INTO users (name, email, password) VALUES (
       'admin',
       'admin@admin.com',
       'admin123')
