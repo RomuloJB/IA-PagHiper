@@ -43,4 +43,28 @@ class UserDao {
     final db = await _dbService.database;
     return await db.delete(tableName, where: 'id = ?', whereArgs: [id]);
   }
+
+  Future<User?> findByEmail(String email) async {
+    final db = await _dbService.database;
+    final rows = await db.query(
+      tableName,
+      where: 'LOWER(email) = ?',
+      whereArgs: [email.toLowerCase()],
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    return User.fromMap(rows.first);
+  }
+
+  Future<User?> findByEmailAndPassword(String email, String password) async {
+    final db = await _dbService.database;
+    final rows = await db.query(
+      tableName,
+      where: 'LOWER(email) = ? AND password = ?',
+      whereArgs: [email.toLowerCase(), password],
+      limit: 1,
+    );
+    if (rows.isEmpty) return null;
+    return User.fromMap(rows.first);
+  }
 }

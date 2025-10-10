@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/componentes/BotaoFooter/widget_bottao_footer_navigation.dart';
-import 'package:flutter_application_1/componentes/Drawer/widget_drawer.dart';
+import 'package:flutter_application_1/componentes/BotaoFooter/WidgetBotaoFooterNavigation.dart';
+import 'package:flutter_application_1/componentes/Drawer/WidgetDrawer.dart';
 import 'package:flutter_application_1/telas/Agendamento/WidgetAgendamento.dart';
 
 class WidgetMenu extends StatefulWidget {

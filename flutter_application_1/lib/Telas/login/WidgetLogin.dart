@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/Services/AuthService.dart';
 import 'package:flutter_application_1/componentes/Formularios/form_login.dart';
 import 'package:flutter_application_1/routes/Rotas.dart';
 
@@ -24,22 +25,20 @@ class WidgetLogin extends StatelessWidget {
     }
   }
 
-  /*
-  Future<void> _onSubmit(
+  Future<void> onSubmit(
     BuildContext context,
     String email,
     String password,
     bool rememberMe,
   ) async {
-    if (email.isEmpty || password.isEmpty) {
-      throw Exception('Preencha e-mail e senha.');
-    }
+    final auth = AuthService();
+    await auth.signIn(email, password);
 
     if (context.mounted) {
       Navigator.of(context).pushReplacementNamed(Rotas.dashboard);
     }
   }
-*/
+
   void _onForgotPassword(BuildContext context) {
     showDialog<void>(
       context: context,

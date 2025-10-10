@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/componentes/BotaoGenerico/primary_button.dart';
 import 'package:flutter_application_1/banco/entidades/User.dart';
+import 'package:flutter_application_1/componentes/botaoGenerico/BotaoGenerico.dart';
 import 'package:uuid/uuid.dart';
 
 class WidgetCadastro extends StatefulWidget {
@@ -137,8 +137,7 @@ class _WidgetCadastroState extends State<WidgetCadastro> {
               ),
               const SizedBox(height: 20),
 
-              // Botão de cadastro
-              PrimaryButton(text: 'Cadastrar', onPressed: _salvarUsuario),
+              BotaoGenerico(text: 'Cadastrar', onPressed: _salvarUsuario),
             ],
           ),
         ),
