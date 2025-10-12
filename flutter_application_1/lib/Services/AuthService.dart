@@ -1,5 +1,5 @@
-import 'package:flutter_application_1/banco/dao/UserDAO.dart';
-import 'package:flutter_application_1/banco/entidades/User.dart';
+import 'package:flutter_application_1/Banco/DAO/UserDAO.dart';
+import 'package:flutter_application_1/Banco/entidades/User.dart';
 
 class AuthService {
   AuthService({UserDao? userDao}) : _userDao = userDao ?? UserDao();

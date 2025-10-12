@@ -1,5 +1,5 @@
 import 'package:flutter_application_1/Services/databaseService.dart';
-import 'package:flutter_application_1/banco/entidades/ProcessingLog.dart';
+import 'package:flutter_application_1/Banco/entidades/ProcessingLog.dart';
 import 'package:sqflite/sqflite.dart';
 
 class ProcessingLogDao {

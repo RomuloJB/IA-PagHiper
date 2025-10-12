@@ -24,8 +24,9 @@ class DatabaseService {
       return await dbFactory.openDatabase(
         inMemoryDatabasePath,
         options: OpenDatabaseOptions(
-          version: 1,
+          version: 2,
           onCreate: _onCreate,
+          onUpgrade: _onUpgrade,
           onConfigure: _onConfigure,
         ),
       );
@@ -36,11 +37,35 @@ class DatabaseService {
       return await databaseFactory.openDatabase(
         path,
         options: OpenDatabaseOptions(
-          version: 1,
+          version: 2,
           onCreate: _onCreate,
+          onUpgrade: _onUpgrade,
           onConfigure: _onConfigure,
         ),
       );
+    }
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    print('Atualizando banco de $oldVersion para $newVersion');
+
+    if (oldVersion < 2) {
+      // Adicionar tabela de protocolos na migração da v1 para v2
+      print('Criando tabela processing_protocols...');
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS processing_protocols (
+          protocol_code TEXT PRIMARY KEY,
+          contract_id TEXT NOT NULL,
+          status TEXT NOT NULL,
+          current_step TEXT,
+          progress INTEGER,
+          file_name TEXT,
+          created_at TEXT NOT NULL,
+          completed_at TEXT,
+          error_message TEXT,
+          FOREIGN KEY(contract_id) REFERENCES contracts(id) ON DELETE CASCADE
+        )
+      ''');
     }
   }
 
@@ -161,6 +186,22 @@ class DatabaseService {
         step TEXT NOT NULL,
         message TEXT,
         created_at TEXT NOT NULL,
+        FOREIGN KEY(contract_id) REFERENCES contracts(id) ON DELETE CASCADE
+      )
+    ''');
+
+    // Tabela de Protocolos de Processamento
+    await db.execute('''
+      CREATE TABLE processing_protocols (
+        protocol_code TEXT PRIMARY KEY,
+        contract_id TEXT NOT NULL,
+        status TEXT NOT NULL,
+        current_step TEXT,
+        progress INTEGER,
+        file_name TEXT,
+        created_at TEXT NOT NULL,
+        completed_at TEXT,
+        error_message TEXT,
         FOREIGN KEY(contract_id) REFERENCES contracts(id) ON DELETE CASCADE
       )
     ''');

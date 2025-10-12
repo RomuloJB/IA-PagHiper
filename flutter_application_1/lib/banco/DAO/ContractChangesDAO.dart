@@ -1,5 +1,5 @@
 import 'package:flutter_application_1/Services/databaseService.dart';
-import 'package:flutter_application_1/banco/entidades/ContractChange.dart';
+import 'package:flutter_application_1/Banco/entidades/ContractChange.dart';
 
 class ContractChangeDao {
   final DatabaseService _dbService = DatabaseService.instance;

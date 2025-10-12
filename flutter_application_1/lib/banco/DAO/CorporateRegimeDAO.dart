@@ -1,5 +1,5 @@
 import 'package:flutter_application_1/Services/databaseService.dart';
-import 'package:flutter_application_1/banco/entidades/CorporateRegime.dart';
+import 'package:flutter_application_1/Banco/entidades/CorporateRegime.dart';
 
 class CorporateRegimeDao {
   final DatabaseService _dbService = DatabaseService.instance;

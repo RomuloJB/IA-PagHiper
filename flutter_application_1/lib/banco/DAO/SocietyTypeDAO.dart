@@ -1,5 +1,5 @@
 import 'package:flutter_application_1/Services/databaseService.dart';
-import 'package:flutter_application_1/banco/entidades/SocietyType.dart';
+import 'package:flutter_application_1/Banco/entidades/SocietyType.dart';
 
 class SocietyTypeDao {
   final DatabaseService _dbService = DatabaseService.instance;

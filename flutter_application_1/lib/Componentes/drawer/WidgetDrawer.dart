@@ -45,7 +45,7 @@ class WidgetDrawer extends StatelessWidget {
             leading: const Icon(Icons.person_add_alt_1),
             title: const Text('Cadastro de cliente'),
             onTap: () {
-              Navigator.of(context).pushNamed(Rotas.Upload);
+              Navigator.of(context).pushNamed(Rotas.upload);
             },
           ),
           ListTile(

@@ -1,5 +1,5 @@
 import 'package:flutter_application_1/Services/databaseService.dart';
-import 'package:flutter_application_1/banco/entidades/CapitalDetail.dart';
+import 'package:flutter_application_1/Banco/entidades/CapitalDetail.dart';
 
 class CapitalDetailDao {
   final DatabaseService _dbService = DatabaseService.instance;

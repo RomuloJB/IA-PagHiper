@@ -85,8 +85,6 @@ class _LoginFormState extends State<LoginForm> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
     return Form(
       key: _formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -96,29 +94,53 @@ class _LoginFormState extends State<LoginForm> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              'Login',
+              'Bem-vindo',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                fontSize: 36,
+                fontSize: 28,
+                color: const Color(0xFF212121),
               ),
             ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 8),
+            Text(
+              'Entre com suas credenciais',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 32),
 
             TextFormField(
               controller: _emailCtrl,
               focusNode: _emailFocus,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'E-mail',
                 hintText: 'seu@email.com',
-                prefixIcon: Icon(Icons.email_outlined),
-                border: OutlineInputBorder(),
+                prefixIcon: const Icon(
+                  Icons.email_outlined,
+                  color: Color(0xFF0857C3),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                ),
                 focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(
-                    color: Color(0xFF0860DB), // azul ao focar
+                    color: Color(0xFF0857C3),
                     width: 2,
                   ),
                 ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Colors.red),
+                ),
+                filled: true,
+                fillColor: Colors.grey[50],
               ),
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
@@ -129,26 +151,44 @@ class _LoginFormState extends State<LoginForm> {
               validator: _validateEmail,
               onFieldSubmitted: (_) => _passwordFocus.requestFocus(),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             TextFormField(
               controller: _passwordCtrl,
               focusNode: _passwordFocus,
               decoration: InputDecoration(
                 labelText: 'Senha',
-                prefixIcon: const Icon(Icons.lock_outline),
-                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(
+                  Icons.lock_outline,
+                  color: Color(0xFF0857C3),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+                ),
                 focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
                   borderSide: const BorderSide(
-                    color: Color(0xFF0860DB),
+                    color: Color(0xFF0857C3),
                     width: 2,
                   ),
                 ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Colors.red),
+                ),
+                filled: true,
+                fillColor: Colors.grey[50],
                 suffixIcon: IconButton(
                   tooltip: _obscure ? 'Mostrar senha' : 'Ocultar senha',
                   icon: Icon(
                     _obscure
                         ? Icons.visibility_outlined
                         : Icons.visibility_off_outlined,
+                    color: Colors.grey[600],
                   ),
                   onPressed: () => setState(() => _obscure = !_obscure),
                 ),
@@ -159,28 +199,42 @@ class _LoginFormState extends State<LoginForm> {
               validator: _validatePassword,
               onFieldSubmitted: (_) => _handleSubmit(),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             Row(
               children: [
                 if (widget.showRememberMe)
                   Expanded(
                     child: InkWell(
                       onTap: () => setState(() => _rememberMe = !_rememberMe),
-                      borderRadius: BorderRadius.circular(6),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Checkbox(
-                            value: _rememberMe,
-                            activeColor: const Color(0xFF24D17A),
-                            onChanged: (value) {
-                              setState(() {
-                                _rememberMe = value ?? false;
-                              });
-                            },
-                          ),
-                          const Text('Lembrar-me'),
-                        ],
+                      borderRadius: BorderRadius.circular(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: Checkbox(
+                                value: _rememberMe,
+                                activeColor: const Color(0xFF0857C3),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _rememberMe = value ?? false;
+                                  });
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Lembrar-me',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   )
@@ -188,26 +242,58 @@ class _LoginFormState extends State<LoginForm> {
                   const Spacer(),
                 TextButton(
                   onPressed: widget.onForgotPassword,
+                  style: TextButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                  ),
                   child: const Text(
                     'Esqueci minha senha',
-                    style: TextStyle(color: Color(0xFF0860DB), fontSize: 14),
+                    style: TextStyle(
+                      color: Color(0xFF0857C3),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 36),
+            const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
+              height: 52,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF24D17A),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: const Color(0xFF0857C3),
+                  foregroundColor: Colors.white,
+                  elevation: 2,
+                  shadowColor: const Color(0xFF0857C3).withOpacity(0.4),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 onPressed: _isLoading ? null : _handleSubmit,
-                child: const Text(
-                  'Entrar',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
+                child:
+                    _isLoading
+                        ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                        : const Text(
+                          'Entrar',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
               ),
             ),
           ],
