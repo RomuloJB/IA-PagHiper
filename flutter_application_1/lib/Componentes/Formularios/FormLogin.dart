@@ -89,7 +89,7 @@ class _LoginFormState extends State<LoginForm> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      autovalidateMode: AutovalidateMode.disabled,
       child: Padding(
         padding: widget.padding ?? const EdgeInsets.all(0),
         child: Column(
