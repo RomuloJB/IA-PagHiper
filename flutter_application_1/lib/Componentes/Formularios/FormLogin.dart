@@ -71,12 +71,14 @@ class _LoginFormState extends State<LoginForm> {
       }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login realizado com sucesso')),
+        const SnackBar(content: Text('Login realizado com sucesso'),
+        backgroundColor: Colors.green),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', '')),
+        backgroundColor: Colors.red,),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
