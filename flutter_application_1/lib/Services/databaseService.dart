@@ -80,7 +80,7 @@ class DatabaseService {
     // Tabela de Usuários
     await db.execute('''
       CREATE TABLE users (
-        id TEXT PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         email TEXT,
         password TEXT,

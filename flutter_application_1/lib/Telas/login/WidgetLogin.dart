@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Services/AuthService.dart';
-import 'package:flutter_application_1/componentes/Formularios/FormLogin.dart';
+import 'package:flutter_application_1/Componentes/Formularios/FormLogin.dart';
 import 'package:flutter_application_1/Routes/rotas.dart';
+import 'package:flutter_application_1/Telas/cadastro/WidgetCadastro.dart';
 
 class WidgetLogin extends StatelessWidget {
   const WidgetLogin({super.key});
@@ -16,46 +17,36 @@ class WidgetLogin extends StatelessWidget {
       throw Exception('Preencha e-mail e senha.');
     }
 
-    if (email.toLowerCase() == 'admin@admin.com' && password == 'admin123') {
-      if (context.mounted) {
-        Navigator.of(context).pushReplacementNamed(Rotas.unifiedContract);
-      }
-    } else {
-      throw Exception('Credenciais inválidas');
-    }
-  }
-
-  Future<void> onSubmit(
-    BuildContext context,
-    String email,
-    String password,
-    bool rememberMe,
-  ) async {
     final auth = AuthService();
     await auth.signIn(email, password);
 
     if (context.mounted) {
-      Navigator.of(context).pushReplacementNamed(Rotas.dashboard);
+      Navigator.of(context).pushReplacementNamed(Rotas.unifiedContract);
     }
   }
 
   void _onForgotPassword(BuildContext context) {
     showDialog<void>(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: const Text('Recuperar senha'),
-            content: const Text(
-              'Enviamos um link de recuperação para o seu e-mail (exemplo).',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: const Text('OK'),
-              ),
-            ],
+      builder: (ctx) => AlertDialog(
+        title: const Text('Recuperar senha'),
+        content: const Text(
+          'Enviamos um link de recuperação para o seu e-mail (exemplo).',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('OK'),
           ),
+        ],
+      ),
     );
+  }
+
+  void _goToCadastro(BuildContext context) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const WidgetCadastro()));
   }
 
   @override
@@ -95,7 +86,6 @@ class WidgetLogin extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-
                     const Text(
                       'IA PagHiper',
                       style: TextStyle(
@@ -124,21 +114,15 @@ class WidgetLogin extends StatelessWidget {
                       child: Container(
                         padding: EdgeInsets.all(isDesktop ? 40 : 32),
                         child: LoginForm(
-                          onSubmit:
-                              (email, password, rememberMe) => _onSubmit(
-                                context,
-                                email,
-                                password,
-                                rememberMe,
-                              ),
+                          onSubmit: (email, password, rememberMe) =>
+                              _onSubmit(context, email, password, rememberMe),
                           onForgotPassword: () => _onForgotPassword(context),
+                          onRegister: () => _goToCadastro(context),
                           padding: EdgeInsets.zero,
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 24),
-
                     Text(
                       '© 2025 Cocão - Todos os direitos reservados',
                       style: TextStyle(

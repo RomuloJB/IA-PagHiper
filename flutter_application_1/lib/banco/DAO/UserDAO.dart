@@ -7,39 +7,51 @@ class UserDao {
 
   Future<int> create(User user) async {
     final db = await _dbService.database;
-    return await db.insert(tableName, user.toMap());
+    return await db.insert(tableName, {
+      'name': user.name,
+      'email': user.email,
+      'password': user.password,
+      'created_at': user.createdAt,
+    });
   }
 
-  Future<User?> read(String id) async {
+  Future<User?> read(int id) async {
     final db = await _dbService.database;
-    final List<Map<String, dynamic>> maps = await db.query(
+    final rows = await db.query(
       tableName,
       where: 'id = ?',
       whereArgs: [id],
+      limit: 1,
     );
-    if (maps.isNotEmpty) {
-      return User.fromMap(maps.first);
-    }
-    return null;
+    if (rows.isEmpty) return null;
+    return User.fromMap(rows.first);
   }
 
   Future<List<User>> readAll() async {
     final db = await _dbService.database;
-    final List<Map<String, dynamic>> maps = await db.query(tableName);
-    return List.generate(maps.length, (i) => User.fromMap(maps[i]));
+    final maps = await db.query(tableName);
+    return maps.map(User.fromMap).toList();
   }
 
   Future<int> update(User user) async {
+    if (user.id == null) {
+      throw ArgumentError('user.id não pode ser nulo no update');
+    }
     final db = await _dbService.database;
     return await db.update(
       tableName,
-      user.toMap(),
+      {
+        'name': user.name,
+        'email': user.email,
+        'password': user.password,
+        'created_at': user.createdAt,
+      },
       where: 'id = ?',
       whereArgs: [user.id],
     );
   }
 
-  Future<int> delete(String id) async {
+  Future<int> delete(int id) async {
     final db = await _dbService.database;
     return await db.delete(tableName, where: 'id = ?', whereArgs: [id]);
   }
@@ -49,7 +61,7 @@ class UserDao {
     final rows = await db.query(
       tableName,
       where: 'LOWER(email) = ?',
-      whereArgs: [email.toLowerCase()],
+      whereArgs: [email.trim().toLowerCase()],
       limit: 1,
     );
     if (rows.isEmpty) return null;
@@ -61,7 +73,7 @@ class UserDao {
     final rows = await db.query(
       tableName,
       where: 'LOWER(email) = ? AND password = ?',
-      whereArgs: [email.toLowerCase(), password],
+      whereArgs: [email.trim().toLowerCase(), password],
       limit: 1,
     );
     if (rows.isEmpty) return null;

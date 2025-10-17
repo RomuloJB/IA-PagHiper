@@ -1,35 +1,30 @@
 class User {
-  final String id;
+  final int? id;
   final String? name;
   final String? email;
   final String? password;
   final String? createdAt;
 
-  User({
-    required this.id,
-    this.name,
-    this.email,
-    this.password,
-    this.createdAt,
-  });
+  const User({this.id, this.name, this.email, this.password, this.createdAt});
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
+    final map = <String, dynamic>{
       'name': name,
       'email': email,
       'password': password,
       'created_at': createdAt,
     };
+    if (id != null) map['id'] = id;
+    return map;
   }
 
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
-      id: map['id'],
-      name: map['name'],
-      email: map['email'],
-      password: map['password'],
-      createdAt: map['created_at'],
+      id: map['id'] is int ? map['id'] as int : int.tryParse('${map['id']}'),
+      name: map['name'] as String?,
+      email: map['email'] as String?,
+      password: map['password'] as String?,
+      createdAt: map['created_at'] as String?,
     );
   }
 }
