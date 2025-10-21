@@ -80,13 +80,21 @@ class DatabaseService {
     // Tabela de Usuários
     await db.execute('''
       CREATE TABLE users (
-        id TEXT PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
-        email TEXT,
-        password TEXT,
-        created_at TEXT
+        email TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT NOT NULL DEFAULT 'user',
+        company_id INTEGER,
+        created_at TEXT,
+        FOREIGN KEY(company_id) REFERENCES companies(id) ON DELETE SET NULL
       )
     ''');
+
+    // Índices
+    await db.execute('CREATE INDEX idx_users_email ON users(email)');
+    await db.execute('CREATE INDEX idx_users_role ON users(role)');
+    await db.execute('CREATE INDEX idx_users_company ON users(company_id)');
 
     // Tabelas de "tipos" (lookup tables)
     await db.execute('''
@@ -206,12 +214,23 @@ class DatabaseService {
       )
     ''');
 
-    await db.execute('''
-      INSERT INTO users (name, email, password) VALUES (
-      'admin',
-      'admin@admin.com',
-      'admin123')
+    await db.execute ('''
+      CREATE TABLE companies (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        cnpj TEXT UNIQUE NOT NULL,
+        created_at TEXT NOT NULL
+      )
     ''');
+    
+    // Seed admin
+    await db.insert('users', {
+      'name': 'Admin Sistema',
+      'email': 'admin@admin.com',
+      'password': 'admin123',
+      'role': 'admin',
+      'created_at': DateTime.now().toIso8601String(),
+    });
 
     print('Tabelas criadas com sucesso!');
   }

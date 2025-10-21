@@ -1,10 +1,10 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/Componentes/Cards/ContractResultCard.dart';
-import 'package:flutter_application_1/Componentes/Cards/PdfPreviewCard.dart';
-import 'package:flutter_application_1/Componentes/Dashboard/DashboardMetricsSection.dart';
-import 'package:flutter_application_1/Componentes/Dashboard/ProcessingStepsWidget.dart';
-import 'package:flutter_application_1/Componentes/Dashboard/RecentContractsWidget.dart';
+import 'package:flutter_application_1/componentes/cards/ContractResultCard.dart';
+import 'package:flutter_application_1/componentes/cards/PdfPreviewCard.dart';
+import 'package:flutter_application_1/componentes/dashboard/DashboardMetricsSection.dart';
+import 'package:flutter_application_1/componentes/dashboard/ProcessingStepsWidget.dart';
+import 'package:flutter_application_1/componentes/dashboard/RecentContractsWidget.dart';
 import 'package:flutter_application_1/Routes/rotas.dart';
 import 'package:flutter_application_1/Services/EnhancedContractService.dart';
 import 'package:flutter_application_1/Banco/DAO/ContractsDAO.dart';
