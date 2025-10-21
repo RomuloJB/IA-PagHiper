@@ -7,6 +7,7 @@ class LoginForm extends StatefulWidget {
     this.onForgotPassword,
     this.showRememberMe = true,
     this.padding,
+    this.onRegister,
   });
 
   final Future<void> Function(String email, String password, bool rememberMe)?
@@ -14,6 +15,8 @@ class LoginForm extends StatefulWidget {
   final VoidCallback? onForgotPassword;
   final bool showRememberMe;
   final EdgeInsets? padding;
+
+  final VoidCallback? onRegister;
 
   @override
   State<LoginForm> createState() => _LoginFormState();
@@ -71,14 +74,18 @@ class _LoginFormState extends State<LoginForm> {
       }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login realizado com sucesso'),
-        backgroundColor: Colors.green),
+        const SnackBar(
+          content: Text('Login realizado com sucesso'),
+          backgroundColor: Colors.green,
+        ),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', '')),
-        backgroundColor: Colors.red,),
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -154,6 +161,7 @@ class _LoginFormState extends State<LoginForm> {
               onFieldSubmitted: (_) => _passwordFocus.requestFocus(),
             ),
             const SizedBox(height: 20),
+
             TextFormField(
               controller: _passwordCtrl,
               focusNode: _passwordFocus,
@@ -202,6 +210,7 @@ class _LoginFormState extends State<LoginForm> {
               onFieldSubmitted: (_) => _handleSubmit(),
             ),
             const SizedBox(height: 16),
+
             Row(
               children: [
                 if (widget.showRememberMe)
@@ -223,11 +232,9 @@ class _LoginFormState extends State<LoginForm> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(4),
                                 ),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _rememberMe = value ?? false;
-                                  });
-                                },
+                                onChanged: (value) => setState(
+                                  () => _rememberMe = value ?? false,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 8),
@@ -262,6 +269,7 @@ class _LoginFormState extends State<LoginForm> {
               ],
             ),
             const SizedBox(height: 32),
+
             SizedBox(
               width: double.infinity,
               height: 52,
@@ -276,26 +284,40 @@ class _LoginFormState extends State<LoginForm> {
                   ),
                 ),
                 onPressed: _isLoading ? null : _handleSubmit,
-                child:
-                    _isLoading
-                        ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.white,
-                            ),
-                          ),
-                        )
-                        : const Text(
-                          'Entrar',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 0.5,
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.5,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
                           ),
                         ),
+                      )
+                    : const Text(
+                        'Entrar',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+            Center(
+              child: TextButton(
+                onPressed: _isLoading ? null : widget.onRegister,
+                child: const Text(
+                  'Cadastrar-me',
+                  style: TextStyle(
+                    color: Color(0xFF0857C3),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ),
           ],

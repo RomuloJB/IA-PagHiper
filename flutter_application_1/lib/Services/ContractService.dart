@@ -105,17 +105,16 @@ class ContractService {
       );
       await _contractDao.update(processedContract);
 
-      final partners =
-          (apiResponse['partners'] as List)
-              .map(
-                (p) => Partner(
-                  contractId: contractId,
-                  name: p['name'],
-                  cpfCnpj: p['cpf_cnpj'],
-                  role: p['role'],
-                ),
-              )
-              .toList();
+      final partners = (apiResponse['partners'] as List)
+          .map(
+            (p) => Partner(
+              contractId: contractId,
+              name: p['name'],
+              cpfCnpj: p['cpf_cnpj'],
+              role: p['role'],
+            ),
+          )
+          .toList();
 
       for (var partner in partners) {
         await _partnerDao.create(partner);
@@ -154,5 +153,13 @@ class ContractService {
       );
       throw Exception("Falha ao processar o contrato: ${e.toString()}");
     }
+  }
+
+  Future<List<Contract>> readAllContracts() async {
+    return await _contractDao.readAll();
+  }
+
+  Future<void> deleteContract(String id) async {
+    await _contractDao.delete(id);
   }
 }

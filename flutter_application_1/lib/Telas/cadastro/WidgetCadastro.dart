@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/Banco/entidades/User.dart';
+import 'package:flutter_application_1/Banco/DAO/UserDAO.dart';
 import 'package:flutter_application_1/componentes/botaoGenerico/BotaoGenerico.dart';
-import 'package:uuid/uuid.dart';
 
 class WidgetCadastro extends StatefulWidget {
   const WidgetCadastro({Key? key}) : super(key: key);
@@ -16,30 +16,30 @@ class _WidgetCadastroState extends State<WidgetCadastro> {
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
   final _confirmarSenhaController = TextEditingController();
+  final _userDao = UserDao();
 
-  void _salvarUsuario() {
-    if (_formKey.currentState!.validate()) {
-      final novoUsuario = User(
-        id: const Uuid().v4(),
-        name: _nomeController.text,
-        email: _emailController.text,
-        password: _senhaController.text,
-        createdAt: DateTime.now().toIso8601String(),
-      );
+  Future<void> _salvarUsuario() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      // 🔹 Aqui futuramente entra o DAO (ex: userDao.insertUser(novoUsuario))
-      print('Usuário cadastrado: ${novoUsuario.toMap()}');
+    final novoUsuario = User(
+      name: _nomeController.text.trim(),
+      email: _emailController.text.trim().toLowerCase(),
+      password: _senhaController.text,
+      createdAt: DateTime.now().toIso8601String(),
+    );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Usuário cadastrado com sucesso!')),
-      );
+    final newId = await _userDao.create(novoUsuario);
 
-      _formKey.currentState!.reset();
-      _nomeController.clear();
-      _emailController.clear();
-      _senhaController.clear();
-      _confirmarSenhaController.clear();
-    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Usuário cadastrado com sucesso! ID: $newId')),
+    );
+
+    _formKey.currentState!.reset();
+    _nomeController.clear();
+    _emailController.clear();
+    _senhaController.clear();
+    _confirmarSenhaController.clear();
   }
 
   @override
@@ -61,23 +61,17 @@ class _WidgetCadastroState extends State<WidgetCadastro> {
           key: _formKey,
           child: ListView(
             children: [
-              // Campo nome
               TextFormField(
                 controller: _nomeController,
                 decoration: const InputDecoration(
                   labelText: 'Nome',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Informe o nome';
-                  }
-                  return null;
-                },
+                validator: (value) => (value == null || value.trim().isEmpty)
+                    ? 'Informe o nome'
+                    : null,
               ),
               const SizedBox(height: 10),
-
-              // Campo e-mail
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -86,18 +80,14 @@ class _WidgetCadastroState extends State<WidgetCadastro> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
+                  if (value == null || value.trim().isEmpty)
                     return 'Informe o e-mail';
-                  }
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
                     return 'E-mail inválido';
-                  }
                   return null;
                 },
               ),
               const SizedBox(height: 10),
-
-              // Campo senha
               TextFormField(
                 controller: _senhaController,
                 obscureText: true,
@@ -106,18 +96,13 @@ class _WidgetCadastroState extends State<WidgetCadastro> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Informe a senha';
-                  }
-                  if (value.length < 6) {
+                  if (value == null || value.isEmpty) return 'Informe a senha';
+                  if (value.length < 6)
                     return 'A senha deve ter pelo menos 6 caracteres';
-                  }
                   return null;
                 },
               ),
               const SizedBox(height: 10),
-
-              // Campo confirmar senha
               TextFormField(
                 controller: _confirmarSenhaController,
                 obscureText: true,
@@ -126,17 +111,14 @@ class _WidgetCadastroState extends State<WidgetCadastro> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
+                  if (value == null || value.isEmpty)
                     return 'Confirme sua senha';
-                  }
-                  if (value != _senhaController.text) {
+                  if (value != _senhaController.text)
                     return 'As senhas não coincidem';
-                  }
                   return null;
                 },
               ),
               const SizedBox(height: 20),
-
               BotaoGenerico(text: 'Cadastrar', onPressed: _salvarUsuario),
             ],
           ),
