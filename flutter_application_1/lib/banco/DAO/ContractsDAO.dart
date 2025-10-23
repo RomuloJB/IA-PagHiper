@@ -69,7 +69,6 @@ class ContractDao {
     return List.generate(maps.length, (i) => Contract.fromMap(maps[i]));
   }
 
-  // Novo método para filtrar por nome da empresa
   Future<List<Contract>> findByCompanyName(String name) async {
     final db = await _dbService.database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -80,7 +79,6 @@ class ContractDao {
     return List.generate(maps.length, (i) => Contract.fromMap(maps[i]));
   }
 
-  // Novo método para filtrar por número de sócios
   Future<List<Contract>> findByPartnerCount(String partnerCount) async {
     final db = await _dbService.database;
     String whereClause;
@@ -114,5 +112,77 @@ class ContractDao {
       whereArgs: whereArgs,
     );
     return List.generate(maps.length, (i) => Contract.fromMap(maps[i]));
+  }
+
+  /// Busca combinada por vários filtros em uma única query, com suporte a ordenação alfabética.
+  /// orderBy: 'alphabetical' => ORDER BY company_name COLLATE NOCASE ASC
+  Future<List<Contract>> findByFilters({
+    String? name,
+    String? cnpjFragment,
+    String? status,
+    String? partnerCount,
+    String? orderBy, // currently supports only 'alphabetical'
+  }) async {
+    final db = await _dbService.database;
+
+    final List<String> whereParts = [];
+    final List<dynamic> args = [];
+
+    if (name != null && name.trim().isNotEmpty) {
+      whereParts.add('company_name LIKE ?');
+      args.add('%${name.trim()}%');
+    }
+
+    if (cnpjFragment != null && cnpjFragment.trim().isNotEmpty) {
+      whereParts.add('cnpj LIKE ?');
+      args.add('%${cnpjFragment.trim()}%');
+    }
+
+    if (status != null && status.trim().isNotEmpty) {
+      whereParts.add('status = ?');
+      args.add(status.trim());
+    }
+
+    // Monta subquery para número de sócios e adiciona argumento (se necessário)
+    String partnerSubquery = '';
+    if (partnerCount != null && partnerCount.trim().isNotEmpty) {
+      if (partnerCount == '3+') {
+        partnerSubquery =
+            'id IN (SELECT contract_id FROM partners GROUP BY contract_id HAVING COUNT(*) >= 3)';
+      } else {
+        final parsed = int.tryParse(partnerCount.trim());
+        if (parsed != null) {
+          partnerSubquery =
+              'id IN (SELECT contract_id FROM partners GROUP BY contract_id HAVING COUNT(*) = ?)';
+          args.add(parsed);
+        } else {
+          partnerSubquery = '';
+        }
+      }
+    }
+
+    String sql = 'SELECT * FROM $tableName';
+
+    if (whereParts.isNotEmpty || partnerSubquery.isNotEmpty) {
+      final List<String> allConditions = [...whereParts];
+      if (partnerSubquery.isNotEmpty) {
+        allConditions.add(partnerSubquery);
+      }
+      sql = '$sql WHERE ${allConditions.join(' AND ')}';
+    }
+
+    // Ordenação: atualmente apenas ordenação alfabética suportada
+    if (orderBy != null && orderBy.isNotEmpty) {
+      if (orderBy == 'alphabetical') {
+        sql = '$sql ORDER BY company_name COLLATE NOCASE ASC';
+      }
+    }
+
+    final List<Map<String, dynamic>> maps = await db.rawQuery(sql, args);
+    return List.generate(maps.length, (i) => Contract.fromMap(maps[i]));
+  }
+
+  Future<List<Contract>> findByCnpjPartial(String fragment) async {
+    return await findByFilters(cnpjFragment: fragment);
   }
 }

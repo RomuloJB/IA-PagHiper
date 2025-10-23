@@ -20,13 +20,17 @@ class _WidgetListagemState extends State<WidgetListagem> {
 
   late Future<List<Contract>> _contractsFuture;
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _cnpjController = TextEditingController();
   String? _selectedPartnerCount;
+  String? _selectedStatus;
+  String? _selectedSort; // 'alphabetical' or null
 
   @override
   void initState() {
     super.initState();
     _loadContracts();
-    _searchController.addListener(_onSearchChanged);
+    _searchController.addListener(_onFilterChanged);
+    _cnpjController.addListener(_onFilterChanged);
   }
 
   void _loadContracts() {
@@ -34,28 +38,26 @@ class _WidgetListagemState extends State<WidgetListagem> {
   }
 
   Future<List<Contract>> _applyFilters() async {
-    List<Contract> contracts;
+    final nameFilter =
+        _searchController.text.isNotEmpty ? _searchController.text : null;
+    final cnpjFilter =
+        _cnpjController.text.isNotEmpty ? _cnpjController.text : null;
+    final statusFilter = _selectedStatus;
+    final partnerCountFilter = _selectedPartnerCount;
+    final sortFilter = _selectedSort;
 
-    // Filtro por nome da empresa
-    if (_searchController.text.isNotEmpty) {
-      contracts = await _contractDao.findByCompanyName(_searchController.text);
-    } else {
-      contracts = await _contractService.readAllContracts();
-    }
-
-    // Filtro por número de sócios
-    if (_selectedPartnerCount != null) {
-      final filteredByPartners =
-          await _contractDao.findByPartnerCount(_selectedPartnerCount!);
-      contracts = contracts
-          .where((c) => filteredByPartners.any((fp) => fp.id == c.id))
-          .toList();
-    }
+    final List<Contract> contracts = await _contractDao.findByFilters(
+      name: nameFilter,
+      cnpjFragment: cnpjFilter,
+      status: statusFilter,
+      partnerCount: partnerCountFilter,
+      orderBy: sortFilter,
+    );
 
     return contracts;
   }
 
-  void _onSearchChanged() {
+  void _onFilterChanged() {
     setState(() {
       _loadContracts();
     });
@@ -76,7 +78,48 @@ class _WidgetListagemState extends State<WidgetListagem> {
   @override
   void dispose() {
     _searchController.dispose();
+    _cnpjController.dispose();
     super.dispose();
+  }
+
+  // Widget pequeno: se onTap for fornecido, é interativo (InkWell); se null, é apenas um container
+  Widget _smallSquare({
+    required Widget child,
+    VoidCallback? onTap,
+    Color? color,
+    bool selected = false,
+  }) {
+    final box = Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: color ??
+            (selected
+                ? const Color(0xFF0857C3)
+                : Colors.white), // azul quando selecionado
+        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            offset: const Offset(0, 1),
+            blurRadius: 2,
+          ),
+        ],
+      ),
+      child: Center(child: child),
+    );
+
+    if (onTap != null) {
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: box,
+      );
+    } else {
+      // sem GestureDetector/InkWell para não bloquear o PopupMenuButton
+      return box;
+    }
   }
 
   @override
@@ -85,6 +128,10 @@ class _WidgetListagemState extends State<WidgetListagem> {
       locale: 'pt_BR',
       symbol: 'R\$',
     );
+
+    final width = MediaQuery.of(context).size.width;
+    final isWide = width > 700;
+    final horizontalPadding = 16.0;
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -96,61 +143,235 @@ class _WidgetListagemState extends State<WidgetListagem> {
       ),
       body: Column(
         children: [
-          // Filtros
+          // Filtros estilizados seguindo padrão da tela
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.symmetric(
+                horizontal: horizontalPadding, vertical: 16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // 1) Input de nome (sozinho, full width)
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
                     labelText: 'Buscar por nome da empresa',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    prefixIcon: const Icon(Icons.search),
+                    filled: true,
+                    fillColor: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
+
+                // 2) Linha: CNPJ (maior) + filtro de sócios (pequeno quadrado com ícone)
+                Row(
+                  children: [
+                    // CNPJ input ocupa o restante
+                    Expanded(
+                      child: TextField(
+                        controller: _cnpjController,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: 'Buscar por CNPJ (parcial)',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          prefixIcon: const Icon(Icons.badge),
+                          filled: true,
+                          fillColor: Colors.white,
+                          suffixIcon: _cnpjController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear,
+                                      color: Colors.red),
+                                  onPressed: () {
+                                    setState(() {
+                                      _cnpjController.clear();
+                                      _loadContracts();
+                                    });
+                                  },
+                                )
+                              : null,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 12),
+
+                    // PopupMenuButton child NÃO pode capturar o toque; por isso passamos um container (sem onTap)
+                    PopupMenuButton<String>(
+                      onSelected: (value) {
+                        setState(() {
+                          _selectedPartnerCount =
+                              value == 'clear' ? null : value;
+                          _loadContracts();
+                        });
+                      },
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(value: '1', child: Text('1 sócio')),
+                        const PopupMenuItem(
+                            value: '2', child: Text('2 sócios')),
+                        const PopupMenuItem(
+                            value: '3+', child: Text('3 ou mais sócios')),
+                        const PopupMenuDivider(),
+                        const PopupMenuItem(
+                            value: 'clear',
+                            child: Text('Limpar filtro de sócios')),
+                      ],
+                      child: _smallSquare(
+                        // aqui não passamos onTap para não bloquear o PopupMenuButton
+                        child: Icon(
+                          Icons.people,
+                          color: _selectedPartnerCount != null
+                              ? Colors.white
+                              : Colors.black87,
+                        ),
+                        selected: _selectedPartnerCount != null,
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // 3) Linha: filtro por status (maior) + ordenação pequena ao lado (A-Z)
                 Row(
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
-                        value: _selectedPartnerCount,
-                        hint: Text('Filtrar por número de sócios'),
+                        value: _selectedStatus,
+                        hint: const Text('Filtrar por status'),
                         decoration: InputDecoration(
-                          border: OutlineInputBorder(),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
                         ),
-                        items: [
-                          DropdownMenuItem(value: '1', child: Text('1 sócio')),
-                          DropdownMenuItem(value: '2', child: Text('2 sócios')),
+                        items: const [
                           DropdownMenuItem(
-                              value: '3+', child: Text('3 ou mais sócios')),
+                              value: 'processed',
+                              child: Text('Análise Concluída')),
+                          DropdownMenuItem(
+                              value: 'processing',
+                              child: Text('Em Processamento')),
+                          DropdownMenuItem(
+                              value: 'failed', child: Text('Falhou')),
+                          DropdownMenuItem(
+                              value: 'pending', child: Text('Pendente')),
                         ],
                         onChanged: (value) {
                           setState(() {
-                            _selectedPartnerCount = value;
+                            _selectedStatus = value;
                             _loadContracts();
                           });
                         },
                       ),
                     ),
+
+                    const SizedBox(width: 12),
+
+                    // Pequeno botão A-Z para ordenar alfabeticamente (interativo)
+                    _smallSquare(
+                      onTap: () {
+                        setState(() {
+                          // Toggle alphabetical sort
+                          if (_selectedSort == 'alphabetical') {
+                            _selectedSort = null;
+                          } else {
+                            _selectedSort = 'alphabetical';
+                          }
+                          _loadContracts();
+                        });
+                      },
+                      child: Text(
+                        'A-Z',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: _selectedSort == 'alphabetical'
+                              ? Colors.white
+                              : Colors.black87,
+                        ),
+                      ),
+                      selected: _selectedSort == 'alphabetical',
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // Linha de chips/indicadores de filtros ativos e botão "Limpar filtros" vermelho
+                Row(
+                  children: [
+                    Expanded(
+                      child: Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          if (_selectedPartnerCount != null)
+                            Chip(
+                              label: Text(
+                                  '${_selectedPartnerCount == '3+' ? '3+ sócios' : '${_selectedPartnerCount} sócio(s)'}'),
+                              backgroundColor: Colors.blue.shade50,
+                              avatar: const Icon(Icons.people,
+                                  size: 18, color: Colors.blueAccent),
+                            ),
+                          if (_selectedStatus != null)
+                            Chip(
+                              label: Text(_selectedStatus == 'processed'
+                                  ? 'Análise Concluída'
+                                  : _selectedStatus ?? ''),
+                              backgroundColor: Colors.orange.shade50,
+                              avatar: const Icon(Icons.info,
+                                  size: 18, color: Colors.orange),
+                            ),
+                          if (_selectedSort != null)
+                            Chip(
+                              label: const Text('A-Z'),
+                              backgroundColor: Colors.green.shade50,
+                              avatar: const Icon(Icons.sort_by_alpha,
+                                  size: 18, color: Colors.green),
+                            ),
+                        ],
+                      ),
+                    ),
+
                     const SizedBox(width: 8),
-                    IconButton(
-                      icon: Icon(Icons.clear, color: Colors.red),
-                      onPressed: _selectedPartnerCount != null
+
+                    // Botão vermelho para limpar todos os filtros
+                    ElevatedButton.icon(
+                      onPressed: (_selectedPartnerCount != null ||
+                              _selectedStatus != null ||
+                              _selectedSort != null)
                           ? () {
                               setState(() {
                                 _selectedPartnerCount = null;
+                                _selectedStatus = null;
+                                _selectedSort = null;
+                                _cnpjController.clear();
+                                _searchController.clear();
                                 _loadContracts();
                               });
                             }
                           : null,
-                      tooltip: 'Limpar filtro de sócios',
+                      icon: const Icon(Icons.clear),
+                      label: const Text('Limpar filtros'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
           ),
+
           // Lista de contratos
           Expanded(
             child: FutureBuilder<List<Contract>>(
@@ -187,27 +408,21 @@ class _WidgetListagemState extends State<WidgetListagem> {
                       color: Colors.white,
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
-                        ),
+                            horizontal: 20, vertical: 16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // 🔹 Cabeçalho de status
+                            // cabeçalho de status
                             Row(
                               children: [
-                                Icon(
-                                  Icons.check_circle,
-                                  color: statusColor,
-                                  size: 26,
-                                ),
+                                Icon(Icons.check_circle,
+                                    color: statusColor, size: 26),
                                 const SizedBox(width: 8),
                                 Text(
                                   statusText,
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18),
                                 ),
                                 const Spacer(),
                                 IconButton(
@@ -219,7 +434,7 @@ class _WidgetListagemState extends State<WidgetListagem> {
                             ),
                             const SizedBox(height: 8),
 
-                            // 🔹 Campos principais
+                            // campos principais
                             if (contract.companyName != null)
                               _infoTile(
                                 icon: Icons.business,
@@ -238,9 +453,8 @@ class _WidgetListagemState extends State<WidgetListagem> {
                               _infoTile(
                                 icon: Icons.attach_money,
                                 color: Colors.green,
-                                title: currencyFormatter.format(
-                                  contract.capitalSocial,
-                                ),
+                                title: currencyFormatter
+                                    .format(contract.capitalSocial),
                                 subtitle: 'Capital Social',
                               ),
                             if (contract.foundationDate != null)
@@ -262,13 +476,11 @@ class _WidgetListagemState extends State<WidgetListagem> {
                             const Divider(),
                             const SizedBox(height: 8),
 
-                            // 🔹 Sócios
+                            // sócios
                             const Text(
                               'Sócios Identificados',
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
+                                  fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             const SizedBox(height: 6),
 
@@ -285,10 +497,8 @@ class _WidgetListagemState extends State<WidgetListagem> {
                                   return const Text('Erro ao carregar sócios');
                                 } else if (!snapshot.hasData ||
                                     snapshot.data!.isEmpty) {
-                                  return const Text(
-                                    'Nenhum sócio cadastrado',
-                                    style: TextStyle(color: Colors.grey),
-                                  );
+                                  return const Text('Nenhum sócio cadastrado',
+                                      style: TextStyle(color: Colors.grey));
                                 }
 
                                 final partners = snapshot.data!;
@@ -337,21 +547,12 @@ class _WidgetListagemState extends State<WidgetListagem> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 13,
-                    height: 1.2,
-                  ),
-                ),
+                Text(title,
+                    style: const TextStyle(
+                        fontSize: 15, fontWeight: FontWeight.w600)),
+                Text(subtitle,
+                    style: const TextStyle(
+                        color: Colors.grey, fontSize: 13, height: 1.2)),
               ],
             ),
           ),
