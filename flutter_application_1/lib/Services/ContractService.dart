@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
@@ -29,18 +30,22 @@ class ContractService {
 
   Future<Map<String, dynamic>> _mockAnalyzeApi(PlatformFile file) async {
     await Future.delayed(const Duration(seconds: 3)); // simula tempo de API
-    final String response = await rootBundle.loadString(
-      'assets/contratos.json',
-    );
+    final String response =
+        await rootBundle.loadString('assets/contratos.json');
     final List<dynamic> data = json.decode(response);
 
-    // aqui você pode escolher a lógica:
-    // 1. Sempre o primeiro contrato:
-    return data.first as Map<String, dynamic>;
+    print(
+        'Tamanho da lista de contratos: ${data.length}'); // Verifica o tamanho da lista
 
-    // // 2. Escolher aleatório para variar:
-    // final random = Random();
-    // return data[random.nextInt(data.length)] as Map<String, dynamic>;
+    final random = Random(); // Removida a semente para garantir aleatoriedade
+    final randomIndex = random.nextInt(data.length);
+
+    print(
+        'Índice aleatório selecionado: $randomIndex'); // Verifica o índice gerado
+    print(
+        'Contrato selecionado: ${data[randomIndex]}'); // Verifica o contrato retornado
+
+    return data[randomIndex] as Map<String, dynamic>;
   }
 
   // MUDANÇA: Agora retorna o Map<String, dynamic> da API

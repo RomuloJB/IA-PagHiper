@@ -49,7 +49,6 @@ class ContractDao {
     return await db.delete(tableName, where: 'id = ?', whereArgs: [id]);
   }
 
-  // Métodos específicos para Contratos
   Future<List<Contract>> findByStatus(String status) async {
     final db = await _dbService.database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -66,6 +65,53 @@ class ContractDao {
       tableName,
       where: 'user_id = ?',
       whereArgs: [userId],
+    );
+    return List.generate(maps.length, (i) => Contract.fromMap(maps[i]));
+  }
+
+  // Novo método para filtrar por nome da empresa
+  Future<List<Contract>> findByCompanyName(String name) async {
+    final db = await _dbService.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      tableName,
+      where: 'company_name LIKE ?',
+      whereArgs: ['%$name%'],
+    );
+    return List.generate(maps.length, (i) => Contract.fromMap(maps[i]));
+  }
+
+  // Novo método para filtrar por número de sócios
+  Future<List<Contract>> findByPartnerCount(String partnerCount) async {
+    final db = await _dbService.database;
+    String whereClause;
+    List<dynamic> whereArgs;
+
+    if (partnerCount == '3+') {
+      whereClause = '''
+        id IN (
+          SELECT contract_id 
+          FROM partners 
+          GROUP BY contract_id 
+          HAVING COUNT(*) >= 3
+        )
+      ''';
+      whereArgs = [];
+    } else {
+      whereClause = '''
+        id IN (
+          SELECT contract_id 
+          FROM partners 
+          GROUP BY contract_id 
+          HAVING COUNT(*) = ?
+        )
+      ''';
+      whereArgs = [int.parse(partnerCount)];
+    }
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      tableName,
+      where: whereClause,
+      whereArgs: whereArgs,
     );
     return List.generate(maps.length, (i) => Contract.fromMap(maps[i]));
   }
