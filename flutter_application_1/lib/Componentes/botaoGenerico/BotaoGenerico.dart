@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class BotaoGenerico extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   const BotaoGenerico({Key? key, required this.text, required this.onPressed})
-    : super(key: key);
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
