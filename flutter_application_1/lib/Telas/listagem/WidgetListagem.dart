@@ -20,13 +20,16 @@ class _WidgetListagemState extends State<WidgetListagem> {
 
   late Future<List<Contract>> _contractsFuture;
   final TextEditingController _searchController = TextEditingController();
+  final TextEditingController _cnpjController = TextEditingController();
   String? _selectedPartnerCount;
+  String? _selectedStatus;
 
   @override
   void initState() {
     super.initState();
     _loadContracts();
-    _searchController.addListener(_onSearchChanged);
+    _searchController.addListener(_onFilterChanged);
+    _cnpjController.addListener(_onFilterChanged);
   }
 
   void _loadContracts() {
@@ -34,28 +37,27 @@ class _WidgetListagemState extends State<WidgetListagem> {
   }
 
   Future<List<Contract>> _applyFilters() async {
-    List<Contract> contracts;
+    // Usa o método combinado do DAO para aplicar todos os filtros de uma vez
+    final nameFilter =
+        _searchController.text.isNotEmpty ? _searchController.text : null;
+    final cnpjFilter =
+        _cnpjController.text.isNotEmpty ? _cnpjController.text : null;
+    final statusFilter = _selectedStatus;
+    final partnerCountFilter = _selectedPartnerCount;
 
-    // Filtro por nome da empresa
-    if (_searchController.text.isNotEmpty) {
-      contracts = await _contractDao.findByCompanyName(_searchController.text);
-    } else {
-      contracts = await _contractService.readAllContracts();
-    }
+    final List<Contract> contracts = await _contractDao.findByFilters(
+      name: nameFilter,
+      cnpjFragment: cnpjFilter,
+      status: statusFilter,
+      partnerCount: partnerCountFilter,
+    );
 
-    // Filtro por número de sócios
-    if (_selectedPartnerCount != null) {
-      final filteredByPartners =
-          await _contractDao.findByPartnerCount(_selectedPartnerCount!);
-      contracts = contracts
-          .where((c) => filteredByPartners.any((fp) => fp.id == c.id))
-          .toList();
-    }
-
+    // Caso queira complementar com outra fonte (por ex. ContractService) combine aqui.
     return contracts;
   }
 
-  void _onSearchChanged() {
+  void _onFilterChanged() {
+    // Debounce simples opcional poderia ser adicionado aqui; por enquanto atualiza direto
     setState(() {
       _loadContracts();
     });
@@ -76,6 +78,7 @@ class _WidgetListagemState extends State<WidgetListagem> {
   @override
   void dispose() {
     _searchController.dispose();
+    _cnpjController.dispose();
     super.dispose();
   }
 
@@ -85,6 +88,10 @@ class _WidgetListagemState extends State<WidgetListagem> {
       locale: 'pt_BR',
       symbol: 'R\$',
     );
+
+    final width = MediaQuery.of(context).size.width;
+    // largura relativa para os campos dentro do Wrap
+    final fieldWidth = (width > 700) ? (width * 0.42) : (width * 0.9);
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -101,6 +108,7 @@ class _WidgetListagemState extends State<WidgetListagem> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
+                // Busca por nome
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
@@ -109,11 +117,40 @@ class _WidgetListagemState extends State<WidgetListagem> {
                     prefixIcon: Icon(Icons.search),
                   ),
                 ),
+                const SizedBox(height: 12),
+
+                // Busca por CNPJ parcial
+                TextField(
+                  controller: _cnpjController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Buscar por CNPJ (parcial)',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.badge),
+                    suffixIcon: _cnpjController.text.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(Icons.clear, color: Colors.red),
+                            onPressed: () {
+                              setState(() {
+                                _cnpjController.clear();
+                                _loadContracts();
+                              });
+                            },
+                          )
+                        : null,
+                  ),
+                ),
                 const SizedBox(height: 16),
-                Row(
+
+                // Substitui Row por Wrap para evitar overflow em telas pequenas
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
-                    Expanded(
+                    SizedBox(
+                      width: fieldWidth,
                       child: DropdownButtonFormField<String>(
+                        isExpanded: true,
                         value: _selectedPartnerCount,
                         hint: Text('Filtrar por número de sócios'),
                         decoration: InputDecoration(
@@ -133,18 +170,54 @@ class _WidgetListagemState extends State<WidgetListagem> {
                         },
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    IconButton(
-                      icon: Icon(Icons.clear, color: Colors.red),
-                      onPressed: _selectedPartnerCount != null
-                          ? () {
-                              setState(() {
-                                _selectedPartnerCount = null;
-                                _loadContracts();
-                              });
-                            }
-                          : null,
-                      tooltip: 'Limpar filtro de sócios',
+
+                    SizedBox(
+                      width: fieldWidth,
+                      child: DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        value: _selectedStatus,
+                        hint: Text('Filtrar por status'),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                              value: 'processed',
+                              child: Text('Análise Concluída')),
+                          DropdownMenuItem(
+                              value: 'processing',
+                              child: Text('Em Processamento')),
+                          DropdownMenuItem(
+                              value: 'failed', child: Text('Falhou')),
+                          DropdownMenuItem(
+                              value: 'pending', child: Text('Pendente')),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedStatus = value;
+                            _loadContracts();
+                          });
+                        },
+                      ),
+                    ),
+
+                    // Botão para limpar filtros (fica ao lado quando houver espaço, senão quebra linha)
+                    Container(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: IconButton(
+                        icon: Icon(Icons.clear, color: Colors.red),
+                        onPressed: (_selectedPartnerCount != null ||
+                                _selectedStatus != null)
+                            ? () {
+                                setState(() {
+                                  _selectedPartnerCount = null;
+                                  _selectedStatus = null;
+                                  _loadContracts();
+                                });
+                              }
+                            : null,
+                        tooltip: 'Limpar filtros',
+                      ),
                     ),
                   ],
                 ),

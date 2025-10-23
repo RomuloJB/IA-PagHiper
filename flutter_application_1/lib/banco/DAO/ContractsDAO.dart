@@ -115,4 +115,71 @@ class ContractDao {
     );
     return List.generate(maps.length, (i) => Contract.fromMap(maps[i]));
   }
+
+  // Novo: busca combinada por vários filtros em uma única query
+  Future<List<Contract>> findByFilters({
+    String? name,
+    String? cnpjFragment,
+    String? status,
+    String? partnerCount,
+  }) async {
+    final db = await _dbService.database;
+
+    final List<String> whereParts = [];
+    final List<dynamic> args = [];
+
+    if (name != null && name.trim().isNotEmpty) {
+      whereParts.add('company_name LIKE ?');
+      args.add('%${name.trim()}%');
+    }
+
+    if (cnpjFragment != null && cnpjFragment.trim().isNotEmpty) {
+      whereParts.add('cnpj LIKE ?');
+      args.add('%${cnpjFragment.trim()}%');
+    }
+
+    if (status != null && status.trim().isNotEmpty) {
+      whereParts.add('status = ?');
+      args.add(status.trim());
+    }
+
+    // Monta subquery para número de sócios e adiciona argumento (se necessário)
+    String partnerSubquery = '';
+    if (partnerCount != null && partnerCount.trim().isNotEmpty) {
+      if (partnerCount == '3+') {
+        partnerSubquery =
+            'id IN (SELECT contract_id FROM partners GROUP BY contract_id HAVING COUNT(*) >= 3)';
+      } else {
+        // tenta converter em inteiro com segurança
+        final parsed = int.tryParse(partnerCount.trim());
+        if (parsed != null) {
+          partnerSubquery =
+              'id IN (SELECT contract_id FROM partners GROUP BY contract_id HAVING COUNT(*) = ?)';
+          // adiciona o valor convertido nos args já aqui
+          args.add(parsed);
+        } else {
+          // se não for número válido, ignoramos o filtro de partnerCount
+          partnerSubquery = '';
+        }
+      }
+    }
+
+    String sql = 'SELECT * FROM $tableName';
+
+    if (whereParts.isNotEmpty || partnerSubquery.isNotEmpty) {
+      final List<String> allConditions = [...whereParts];
+      if (partnerSubquery.isNotEmpty) {
+        allConditions.add(partnerSubquery);
+      }
+      sql = '$sql WHERE ${allConditions.join(' AND ')}';
+    }
+
+    final List<Map<String, dynamic>> maps = await db.rawQuery(sql, args);
+    return List.generate(maps.length, (i) => Contract.fromMap(maps[i]));
+  }
+
+  // Conveniência: cnpj parcial
+  Future<List<Contract>> findByCnpjPartial(String fragment) async {
+    return await findByFilters(cnpjFragment: fragment);
+  }
 }
