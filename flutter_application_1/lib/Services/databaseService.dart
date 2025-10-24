@@ -208,7 +208,7 @@ class DatabaseService {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         cnpj TEXT UNIQUE NOT NULL,
-        created_at TEXT NOT NULL
+        created_at TEXT
       )
     ''');
 
@@ -249,6 +249,12 @@ class DatabaseService {
     await db.insert('society_types', {'name': 'Sociedade Anônima'},
         conflictAlgorithm: ConflictAlgorithm.ignore);
     await db.insert('society_types', {'name': 'Sociedade Limitada'},
+        conflictAlgorithm: ConflictAlgorithm.ignore);
+
+    //Company
+    await db.insert('companies', {'name': 'PagHiper'},
+        conflictAlgorithm: ConflictAlgorithm.ignore);
+    await db.insert('companies', {'cnpj': '11222333444455'},
         conflictAlgorithm: ConflictAlgorithm.ignore);
 
     // 3. Seed das empresas

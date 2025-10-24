@@ -123,34 +123,33 @@ class _UnifiedContractScreenState extends State<UnifiedContractScreen> {
   Future<void> _confirmAndUpload() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text("Confirmar Envio"),
+        content: Text(
+          "Você realmente deseja enviar o contrato ${_selectedFile!.name} para análise?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text(
+              "Cancelar",
+              style: TextStyle(color: Colors.red),
             ),
-            title: const Text("Confirmar Envio"),
-            content: Text(
-              "Você realmente deseja enviar o contrato ${_selectedFile!.name} para análise?",
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text(
-                  "Cancelar",
-                  style: TextStyle(color: Colors.red),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context, true),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF24d17a),
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text("Enviar"),
-              ),
-            ],
           ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF24d17a),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text("Enviar"),
+          ),
+        ],
+      ),
     );
 
     if (confirmed == true) {
@@ -176,23 +175,21 @@ class _UnifiedContractScreenState extends State<UnifiedContractScreen> {
     });
 
     try {
-      final result = await _contractService
-          .uploadAndProcessContractWithProtocol(
-            file: _selectedFile!,
-            customName:
-                _contractNameController.text.isNotEmpty
-                    ? _contractNameController.text
-                    : null,
-            notes:
-                _notesController.text.isNotEmpty ? _notesController.text : null,
-            onProgress: (step, progress, protocolCode) {
-              setState(() {
-                _currentStep = step;
-                _progress = progress;
-                _protocolCode = protocolCode;
-              });
-            },
-          );
+      final result =
+          await _contractService.uploadAndProcessContractWithProtocol(
+        file: _selectedFile!,
+        customName: _contractNameController.text.isNotEmpty
+            ? _contractNameController.text
+            : null,
+        notes: _notesController.text.isNotEmpty ? _notesController.text : null,
+        onProgress: (step, progress, protocolCode) {
+          setState(() {
+            _currentStep = step;
+            _progress = progress;
+            _protocolCode = protocolCode;
+          });
+        },
+      );
 
       setState(() {
         _processedData = result;
@@ -237,6 +234,11 @@ class _UnifiedContractScreenState extends State<UnifiedContractScreen> {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
+            icon: const Icon(Icons.edit_document),
+            tooltip: 'Cadastrar funcionário',
+            onPressed: () => Navigator.pushNamed(context, Rotas.signNewUser),
+          ),
+          IconButton(
             icon: const Icon(Icons.qr_code_scanner),
             tooltip: 'Consultar Protocolo',
             onPressed: () => Navigator.pushNamed(context, Rotas.protocolSearch),
@@ -269,7 +271,6 @@ class _UnifiedContractScreenState extends State<UnifiedContractScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-
                     ElevatedButton.icon(
                       icon: const Icon(Icons.upload_file, size: 22),
                       label: const Text('Selecionar PDF'),
@@ -283,9 +284,7 @@ class _UnifiedContractScreenState extends State<UnifiedContractScreen> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     if (_pdfController != null && _selectedFile != null) ...[
                       PdfPreviewCard(
                         file: _selectedFile!,
@@ -293,7 +292,6 @@ class _UnifiedContractScreenState extends State<UnifiedContractScreen> {
                       ),
                       const SizedBox(height: 24),
                     ],
-
                     if (_selectedFile != null) ...[
                       TextField(
                         controller: _contractNameController,
@@ -326,7 +324,6 @@ class _UnifiedContractScreenState extends State<UnifiedContractScreen> {
                         enabled: !_isUploading,
                       ),
                       const SizedBox(height: 16),
-
                       TextField(
                         controller: _notesController,
                         decoration: InputDecoration(
@@ -359,12 +356,10 @@ class _UnifiedContractScreenState extends State<UnifiedContractScreen> {
                         enabled: !_isUploading,
                       ),
                       const SizedBox(height: 24),
-
                       ElevatedButton(
-                        onPressed:
-                            (_selectedFile == null || _isUploading)
-                                ? null
-                                : _confirmAndUpload,
+                        onPressed: (_selectedFile == null || _isUploading)
+                            ? null
+                            : _confirmAndUpload,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           backgroundColor: const Color(0xFF24d17a),
@@ -412,14 +407,13 @@ class _UnifiedContractScreenState extends State<UnifiedContractScreen> {
                   RecentContractsWidget(
                     contracts: _recentContracts,
                     isLoading: _isLoadingContracts,
-                    onViewAll:
-                        () => Navigator.pushNamed(context, Rotas.listagem),
+                    onViewAll: () =>
+                        Navigator.pushNamed(context, Rotas.listagem),
                   ),
                 ],
               ),
             ),
           ),
-
           if (_isUploading)
             Positioned.fill(
               child: Container(

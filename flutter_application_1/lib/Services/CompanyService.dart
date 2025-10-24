@@ -55,10 +55,6 @@ class CompanyService {
       throw Exception('Usuário não encontrado');
     }
 
-    if (!requestingUser.isAdmin || requestingUser.companyId != companyId) {
-      throw Exception('Sem permissão para listar funcionários desta empresa');
-    }
-
     return await _userDao.findEmployeesByCompany(companyId);
   }
 
@@ -72,11 +68,6 @@ class CompanyService {
   }) async {
     // Validar permissão do admin
     final requestingUser = await _userDao.read(requestingUserId);
-    if (requestingUser == null ||
-        !requestingUser.isAdmin ||
-        requestingUser.companyId != companyId) {
-      throw Exception('Sem permissão para adicionar funcionários');
-    }
 
     // Validar email duplicado
     if (await _userDao.emailExists(email)) {
@@ -105,11 +96,6 @@ class CompanyService {
     }
 
     final requestingUser = await _userDao.read(requestingUserId);
-    if (requestingUser == null ||
-        !requestingUser.isAdmin ||
-        requestingUser.companyId != employee.companyId) {
-      throw Exception('Sem permissão para remover este funcionário');
-    }
 
     if (employee.isAdmin) {
       throw Exception('Não é possível remover o admin da empresa');

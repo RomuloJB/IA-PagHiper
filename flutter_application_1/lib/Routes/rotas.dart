@@ -6,4 +6,5 @@ class Rotas {
   static const String listagem = '/listagem';
   static const String unifiedContract = '/unified-contract';
   static const String protocolSearch = '/protocol-search';
+  static const String signNewUser = '/sign-new-user';
 }
