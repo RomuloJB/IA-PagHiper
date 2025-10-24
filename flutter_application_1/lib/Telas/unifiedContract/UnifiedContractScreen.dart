@@ -228,13 +228,18 @@ class _UnifiedContractScreenState extends State<UnifiedContractScreen> {
       backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: const Text("Análise de Contratos"),
-        centerTitle: true,
+        centerTitle: false,
         elevation: 0,
         backgroundColor: const Color(0xFF0857C3),
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_document),
+            icon: Icon(Icons.abc),
+            tooltip: 'Cadastrar empresa',
+            onPressed: () => Navigator.pushNamed(context, Rotas.signNewCompany),
+          ),
+          IconButton(
+            icon: const Icon(Icons.group_add),
             tooltip: 'Cadastrar funcionário',
             onPressed: () => Navigator.pushNamed(context, Rotas.signNewUser),
           ),

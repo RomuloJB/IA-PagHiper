@@ -128,179 +128,360 @@ class _WidgetCadastroFuncionarioState extends State<WidgetCadastroFuncionario> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       appBar: AppBar(
         title: const Text('Gerenciar Funcionários'),
+        centerTitle: false,
+        elevation: 0,
         backgroundColor: const Color(0xFF0857C3),
+        foregroundColor: Colors.white,
       ),
       body: _isLoadingCompanies
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF0857C3),
+              ),
+            )
           : _listCompanies.isEmpty
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.business_outlined,
-                          size: 64, color: Colors.grey),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'Nenhuma empresa cadastrada',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
-                      ),
-                      const SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.add_business),
-                        label: const Text('Cadastrar Empresa'),
-                      ),
-                    ],
+                  child: Container(
+                    margin: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(40),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0857C3).withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.business_outlined,
+                            size: 64,
+                            color: Color(0xFF0857C3),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'Nenhuma empresa cadastrada',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF212121),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Cadastre uma empresa antes de adicionar funcionários',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 24),
+                        ElevatedButton.icon(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.add_business),
+                          label: const Text('Cadastrar Empresa'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF24d17a),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 16,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 )
               : SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
                   child: Column(
                     children: [
                       // ========== FORMULÁRIO ==========
-                      Container(
-                        padding: const EdgeInsets.all(16.0),
-                        color: Colors.white,
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Adicionar Funcionário',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
+                      Card(
+                        elevation: 2,
+                        shadowColor: Colors.black.withOpacity(0.1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(24.0),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF0857C3)
+                                            .withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(
+                                        Icons.person_add,
+                                        color: Color(0xFF0857C3),
+                                        size: 28,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    const Text(
+                                      'Adicionar Funcionário',
+                                      style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF212121),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              const SizedBox(height: 20),
+                                const SizedBox(height: 24),
 
-                              // Dropdown de empresas
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.blue[50],
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                      color: const Color(0xFF0857C3)),
-                                ),
-                                child: DropdownButtonFormField<Company>(
+                                // Dropdown de empresas
+                                DropdownButtonFormField<Company>(
                                   value: _empresaSelecionada,
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     labelText: 'Empresa',
-                                    prefixIcon: Icon(Icons.business,
-                                        color: Color(0xFF0857C3)),
-                                    border: InputBorder.none,
+                                    prefixIcon: const Icon(
+                                      Icons.business,
+                                      color: Color(0xFF0857C3),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFE0E0E0),
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFE0E0E0),
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF0857C3),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[50],
                                   ),
-                                  items: _listCompanies.map((adminCompany) {
+                                  items: _listCompanies.map((company) {
                                     return DropdownMenuItem<Company>(
-                                      value: adminCompany,
-                                      child: Text(adminCompany.name),
+                                      value: company,
+                                      child: Text(company.name),
                                     );
                                   }).toList(),
-                                  onChanged: (adminCompany) {
-                                    setState(() =>
-                                        _empresaSelecionada = adminCompany);
+                                  onChanged: (company) {
+                                    setState(() => _empresaSelecionada = company);
                                   },
                                   validator: (value) => value == null
                                       ? 'Selecione uma empresa'
                                       : null,
                                 ),
-                              ),
-                              const SizedBox(height: 16),
+                                const SizedBox(height: 20),
 
-                              TextFormField(
+                                TextFormField(
                                   controller: _nomeController,
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     labelText: 'Nome do funcionário',
-                                    prefixIcon: Icon(Icons.person_outline),
-                                    border: OutlineInputBorder(),
+                                    prefixIcon: const Icon(
+                                      Icons.person_outline,
+                                      color: Color(0xFF0857C3),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFE0E0E0),
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFE0E0E0),
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF0857C3),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[50],
                                   ),
                                   validator: (value) {
-                                    if (value == null || value.trim().isEmpty)
+                                    if (value == null || value.trim().isEmpty) {
                                       return 'Informe o nome';
+                                    }
                                     return null;
-                                  }),
-                              const SizedBox(height: 16),
-
-                              TextFormField(
-                                controller: _emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                decoration: const InputDecoration(
-                                  labelText: 'E-mail',
-                                  prefixIcon: Icon(Icons.email_outlined),
-                                  border: OutlineInputBorder(),
+                                  },
                                 ),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty)
-                                    return 'Informe o e-mail';
-                                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
-                                      .hasMatch(value))
-                                    return 'E-mail inválido';
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 16),
+                                const SizedBox(height: 20),
 
-                              TextFormField(
-                                controller: _senhaController,
-                                obscureText: true,
-                                decoration: const InputDecoration(
-                                  labelText: 'Senha inicial',
-                                  prefixIcon: Icon(Icons.lock_outline),
-                                  border: OutlineInputBorder(),
-                                  helperText:
-                                      'O funcionário poderá alterar depois',
+                                TextFormField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: InputDecoration(
+                                    labelText: 'E-mail',
+                                    prefixIcon: const Icon(
+                                      Icons.email_outlined,
+                                      color: Color(0xFF0857C3),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFE0E0E0),
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFE0E0E0),
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF0857C3),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[50],
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'Informe o e-mail';
+                                    }
+                                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+')
+                                        .hasMatch(value)) {
+                                      return 'E-mail inválido';
+                                    }
+                                    return null;
+                                  },
                                 ),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty)
-                                    return 'Informe a senha';
-                                  if (value.length < 6)
-                                    return 'Mínimo 6 caracteres';
-                                  return null;
-                                },
-                              ),
-                              const SizedBox(height: 20),
+                                const SizedBox(height: 20),
 
-                              SizedBox(
-                                width: double.infinity,
-                                height: 52,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF0857C3),
-                                    foregroundColor: Colors.white,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                                TextFormField(
+                                  controller: _senhaController,
+                                  obscureText: true,
+                                  decoration: InputDecoration(
+                                    labelText: 'Senha inicial',
+                                    prefixIcon: const Icon(
+                                      Icons.lock_outline,
+                                      color: Color(0xFF0857C3),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFE0E0E0),
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFFE0E0E0),
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: const BorderSide(
+                                        color: Color(0xFF0857C3),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.grey[50],
+                                    helperText:
+                                        'O funcionário poderá alterar depois',
+                                    helperStyle: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
                                     ),
                                   ),
-                                  onPressed:
-                                      _isLoading ? null : _cadastrarFuncionario,
-                                  child: _isLoading
-                                      ? const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                    Colors.white),
-                                          ),
-                                        )
-                                      : const Text(
-                                          'Adicionar Funcionário',
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold),
-                                        ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Informe a senha';
+                                    }
+                                    if (value.length < 6) {
+                                      return 'Mínimo 6 caracteres';
+                                    }
+                                    return null;
+                                  },
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 28),
+
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 56,
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF24d17a),
+                                      foregroundColor: Colors.white,
+                                      elevation: 2,
+                                      shadowColor: const Color(0xFF24d17a)
+                                          .withOpacity(0.4),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(14),
+                                      ),
+                                    ),
+                                    onPressed: _isLoading
+                                        ? null
+                                        : _cadastrarFuncionario,
+                                    child: _isLoading
+                                        ? const SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2.5,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                            ),
+                                          )
+                                        : const Text(
+                                            'Adicionar Funcionário',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
 
-                      const Divider(height: 1, thickness: 2),
+                      const SizedBox(height: 32),
 
                       // LISTA DE FUNCIONÁRIOS
                       if (_empresaSelecionada != null)
